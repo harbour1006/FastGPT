@@ -158,18 +158,25 @@ const Login = ({ ChineseRedirectUrl }: { ChineseRedirectUrl: string }) => {
         )}
         <Flex
           flexDirection={'column'}
-          w={['100%', '556px']}
-          h={['100%', '677px']}
+          w={['100%', '356px']}
+          h={['100%', '377px']}
           bg={'white'}
-          px={['5vw', '88px']}
-          py={['5vh', '64px']}
+          px={['5vw', '35px']}
+          py={['5vh', '25px']}
           borderRadius={[0, '16px']}
           boxShadow={[
             '',
             '0px 32px 64px -12px rgba(19, 51, 107, 0.20), 0px 0px 1px 0px rgba(19, 51, 107, 0.20)'
           ]}
+          //加入代码，更改容器组件位置
+          position={['absolute', 'absolute']} // 响应式定位模式
+          top={['0', '50%']} // 垂直居中（桌面端）
+          left={['0', '70%']} // 水平居中（桌面端）
+          transform={['none', 'translate(-50%, -50%)']} // 精确居中
+          marginTop={['0', '0']} // 修正高度偏移（677/2=338.5）
+          zIndex={1} // 确保浮层层级
         >
-          <Box w={['100%', '380px']} flex={'1 0 0'}>
+          <Box w={['100%', '280px']} flex={'1 0 0'}>
             {pageType ? (
               DynamicComponent
             ) : (
@@ -180,7 +187,7 @@ const Login = ({ ChineseRedirectUrl }: { ChineseRedirectUrl: string }) => {
           </Box>
           {feConfigs?.concatMd && (
             <Box
-              mt={8}
+              mt={-2}
               color={'primary.700'}
               fontSize={'mini'}
               fontWeight={'medium'}
