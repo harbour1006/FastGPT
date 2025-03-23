@@ -45,3 +45,7 @@ files/helm/fastgpt/charts/*.tgz
 
 tmp/
 coverage
+
+
+# 忽略 mongo_backup 目录
+mongo_backup/
