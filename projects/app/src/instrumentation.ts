@@ -1,8 +1,7 @@
 import { exit } from 'process';
 
-/* 
-  Init system
-*/
+/* Init system
+ */
 export async function register() {
   try {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
@@ -33,11 +32,22 @@ export async function register() {
       systemStartCb();
       initGlobalVariables();
 
+      // **Add console.log statements here**
+      console.log('instrumentation.ts: NEXT_RUNTIME', process.env.NEXT_RUNTIME);
+      console.log('instrumentation.ts: MongoDB connection starting...');
+
       // Connect to MongoDB
       await connectMongo();
 
+      // **Add console.log statements here**
+      console.log('instrumentation.ts: MongoDB connected');
+      console.log('instrumentation.ts: PostgreSQL connection starting...');
+
       //init system config；init vector database；init root user
       await Promise.all([getInitConfig(), initVectorStore(), initRootUser()]);
+
+      // **Add console.log statements here**
+      console.log('instrumentation.ts: PostgreSQL connected and init complete');
 
       initSystemPluginGroups();
       initAppTemplateTypes();
@@ -46,10 +56,10 @@ export async function register() {
       startCron();
       startTrainingQueue(true);
 
-      console.log('Init system success');
+      console.log('instrumentation.ts: Init system success');
     }
   } catch (error) {
-    console.log('Init system error', error);
+    console.log('instrumentation.ts: Init system error', error);
     exit(1);
   }
 }

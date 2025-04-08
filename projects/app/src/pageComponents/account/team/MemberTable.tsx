@@ -49,7 +49,6 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
   const { toast } = useToast();
   const { userInfo, teamPlanStatus } = useUserStore();
   const { feConfigs, setNotSufficientModalType } = useSystemStore();
-
   const {
     refetchGroups,
     myTeams,
@@ -60,18 +59,15 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
     MemberScrollData,
     orgs
   } = useContextSelector(TeamContext, (v) => v);
-
   const {
     isOpen: isOpenTeamTagsAsync,
     onOpen: onOpenTeamTagsAsync,
     onClose: onCloseTeamTagsAsync
   } = useDisclosure();
   const { isOpen: isOpenInvite, onOpen: onOpenInvite, onClose: onCloseInvite } = useDisclosure();
-
   const { ConfirmModal: ConfirmRemoveMemberModal, openConfirm: openRemoveMember } = useConfirm({
     type: 'delete'
   });
-
   const { ConfirmModal: ConfirmRestoreMemberModal, openConfirm: openRestoreMember } = useConfirm({
     type: 'common',
     title: t('account_team:restore_tip_title'),
@@ -82,14 +78,19 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
   const [searchText, setSearchText] = useState<string>('');
   const isSyncMember = feConfigs.register_method?.includes('sync');
 
-  const { data: searchMembersData } = useRequest2(
+  const { data: searchMembersData, run: runSearchMembers } = useRequest2(
+    // 获取 run 函数
     () => GetSearchUserGroupOrg(searchText, { members: true, orgs: false, groups: false }),
     {
-      manual: false,
-      throttleWait: 500,
-      refreshDeps: [searchText]
+      manual: true, // 设置为手动触发
+      throttleWait: 500
+      // refreshDeps: [searchText] // 不再依赖 searchText 变化自动刷新
     }
   );
+
+  const handleSearch = () => {
+    runSearchMembers(); // 手动触发搜索 API
+  };
 
   const { runAsync: onLeaveTeam } = useRequest2(
     async () => {
@@ -137,7 +138,9 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
           <Box width={'200px'}>
             <SearchInput
               placeholder={t('account_team:search_member')}
+              value={searchText} // 需要绑定 value
               onChange={(e) => setSearchText(e.target.value)}
+              onSearch={handleSearch} // 当按下回车键时触发
             />
           </Box>
           {userInfo?.team.permission.hasManagePer && feConfigs?.show_team_chat && (
@@ -245,7 +248,7 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                 </Tr>
               </Thead>
               <Tbody>
-                {(searchText && searchMembersData ? searchMembersData.members : members).map(
+                {(searchText && searchMembersData ? searchMembersData.members : members)?.map(
                   (member) => (
                     <Tr key={member.tmbId} overflow={'unset'}>
                       <Td>

@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Start MongoDB",
+        "type": "shell",
+        "command": "docker start mongodb",
+        "isBackground": true,
+        "problemMatcher": [],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        }
+      }
+    ]
+  }

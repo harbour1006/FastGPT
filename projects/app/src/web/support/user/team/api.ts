@@ -24,7 +24,7 @@ import { PaginationProps, PaginationResponse } from '@fastgpt/web/common/fetch/t
 
 /* --------------- team  ---------------- */
 export const getTeamList = (status: `${TeamMemberSchema['status']}`) =>
-  GET<TeamTmbItemType[]>(`/proApi/support/user/team/list`, { status });
+  GET<TeamTmbItemType[]>(`/support/user/team/list`, { status });
 export const postCreateTeam = (data: CreateTeamProps) =>
   POST<string>(`/proApi/support/user/team/create`, data);
 export const putUpdateTeam = (data: UpdateTeamProps) => PUT(`/support/user/team/update`, data);
@@ -33,13 +33,13 @@ export const putSwitchTeam = (teamId: string) =>
 
 /* --------------- team member ---------------- */
 export const getTeamMembers = (props: PaginationProps<{ withLeaved?: boolean }>) =>
-  GET<PaginationResponse<TeamMemberItemType>>(`/proApi/support/user/team/member/list`, props);
+  GET<PaginationResponse<TeamMemberItemType>>(`/support/user/team/member/list`, props);
 export const postInviteTeamMember = (data: InviteMemberProps) =>
-  POST<InviteMemberResponse>(`/proApi/support/user/team/member/invite`, data);
+  POST<InviteMemberResponse>(`/support/user/team/member/invite`, data);
 export const putUpdateMemberName = (name: string) =>
   PUT(`/proApi/support/user/team/member/updateName`, { name });
 export const delRemoveMember = (tmbId: string) =>
-  DELETE(`/proApi/support/user/team/member/delete`, { tmbId });
+  DELETE(`/support/user/team/member/delete`, { tmbId });
 export const updateInviteResult = (data: UpdateInviteProps) =>
   PUT('/proApi/support/user/team/member/updateInvite', data);
 export const updateStatus = (data: UpdateStatusProps) =>
@@ -69,6 +69,7 @@ export const checkTeamDatasetSizeLimit = (size: number) =>
 /* plans */
 export const getTeamPlanStatus = () =>
   GET<FeTeamPlanStatusType>(`/support/user/team/plan/getTeamPlanStatus`, { maxQuantity: 1 });
+
 export const getTeamPlans = () =>
   GET<TeamSubSchema[]>(`/proApi/support/user/team/plan/getTeamPlans`);
 

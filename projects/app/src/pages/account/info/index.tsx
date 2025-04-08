@@ -166,14 +166,13 @@ const MyInfo = ({ onOpenContact }: { onOpenContact: () => void }) => {
   const isSyncMember = feConfigs.register_method?.includes('sync');
   return (
     <Box>
-      {/* user info */}
+      {/* user info 但是有一部分并没有显示出来 */}
       {isPc && (
         <Flex alignItems={'center'} fontSize={'md'} h={'30px'}>
           <MyIcon mr={2} name={'support/user/userLight'} w={'1.25rem'} />
           {t('account_info:personal_information')}
         </Flex>
       )}
-
       <Box mt={[0, 6]} fontSize={'sm'}>
         {isPc ? (
           <Flex alignItems={'center'} cursor={'pointer'}>
@@ -596,6 +595,7 @@ const Other = ({ onOpenContact }: { onOpenContact: () => void }) => {
     }
   });
 
+  // 从这开始是底下的帮助文档
   return (
     <Box>
       <Grid gridGap={4} mt={3}>

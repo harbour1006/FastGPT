@@ -37,6 +37,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await createDefaultTeam({ userId: newUser._id, session });
     });
   });
-  debugger;
-  return res.status(201).json({ message: '用户注册成功yes', userId: newUser._id });
+  return res.status(201).json({ message: '用户注册成功', userId: newUser._id });
 }

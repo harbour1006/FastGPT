@@ -5,7 +5,7 @@ import { useLoading } from '@fastgpt/web/hooks/useLoading';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useQuery } from '@tanstack/react-query';
 import { useUserStore } from '@/web/support/user/useUserStore';
-import { getUnreadCount } from '@/web/support/user/inform/api';
+// import { getUnreadCount } from '@/web/support/user/inform/api';
 import dynamic from 'next/dynamic';
 import { useI18nLng } from '@fastgpt/web/hooks/useI18n';
 
@@ -65,13 +65,17 @@ const Layout = ({ children }: { children: JSX.Element }) => {
     [router.pathname, router.query]
   );
 
-  // System hook
-  const { data, refetch: refetchUnRead } = useQuery(['getUnreadCount'], getUnreadCount, {
-    enabled: !!userInfo && !!feConfigs.isPlus,
+  // System hook    临时注释掉
+  // const { data, refetch: refetchUnRead } = useQuery(['getUnreadCount'], getUnreadCount, {
+  const { data, refetch: refetchUnRead } = useQuery({
+    // enabled: !!userInfo && !!feConfigs.isPlus,
+    enabled: false,
     refetchInterval: 30000
   });
-  const unread = data?.unReadCount || 0;
-  const importantInforms = data?.importantInforms || [];
+  // const unread = data?.unReadCount || 0;
+  // const importantInforms = data?.importantInforms || [];
+  const unread = 0;
+  const importantInforms: any[] = []; // 替换 `InformType` 为实际类型
 
   const isHideNavbar = !!pcUnShowLayoutRoute[router.pathname];
 

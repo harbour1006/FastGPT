@@ -6,12 +6,13 @@ import { PaginationProps, PaginationResponse } from '@fastgpt/web/common/fetch/t
 export const getInforms = (data: PaginationProps) =>
   POST<PaginationResponse<UserInformSchema>>(`/proApi/support/user/inform/list`, data);
 
-export const getUnreadCount = () =>
-  GET<{
-    unReadCount: number;
-    importantInforms: UserInformSchema[];
-  }>(`/proApi/support/user/inform/countUnread`);
-export const readInform = (id: string) => GET(`/proApi/support/user/inform/read`, { id });
+// 不去反复的发送这个请求了，因为这个请求没啥用
+// export const getUnreadCount = () =>
+//   GET<{
+//     unReadCount: number;
+//     importantInforms: UserInformSchema[];
+//   }>(`/proApi/support/user/inform/countUnread`);
+// export const readInform = (id: string) => GET(`/proApi/support/user/inform/read`, { id });
 
-export const getSystemMsgModalData = () =>
-  GET<SystemMsgModalValueType>(`/proApi/support/user/inform/getSystemMsgModal`);
+// export const getSystemMsgModalData = () =>
+//   GET<SystemMsgModalValueType>(`/proApi/support/user/inform/getSystemMsgModal`);

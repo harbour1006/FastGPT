@@ -5,7 +5,7 @@ import {
   putUpdateGroupData
 } from '@fastgpt/global/support/user/team/group/api';
 
-export const getGroupList = () => GET<MemberGroupListType>('/proApi/support/user/team/group/list');
+export const getGroupList = () => GET<MemberGroupListType>('/support/user/team/group/list');
 
 export const postCreateGroup = (data: postCreateGroupData) =>
   POST('/proApi/support/user/team/group/create', data);

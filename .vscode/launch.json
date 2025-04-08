@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      // 前端调试配置 (Next.js)
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Frontend Debug (Next.js)",
+        "runtimeExecutable": "pnpm",
+        "runtimeArgs": ["dev"],
+        "cwd": "${workspaceFolder}/projects/app",
+        "port": 9229,
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "skipFiles": ["${workspaceFolder}/node_modules/**"]
+      },
+      // 后端调试配置 (Node.js)
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Backend Debug (Service)",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "debug"],
+        "port": 9235,
+        "cwd": "${workspaceFolder}/packages/service", // 指向后端目录
+        "console": "integratedTerminal",
+        "skipFiles": ["<node_internals>/**"]
+      }
+    ],
+    "compounds": [
+  {
+    "name": "Fullstack Debug",
+    "configurations": ["Frontend Debug (Next.js)", "Backend Debug (Service)"],
+    "preLaunchTask": "Start MongoDB", // ✅ 确保与 tasks.json 的 label 一致
+    "stopAll": true
+  }
+]
+  }
