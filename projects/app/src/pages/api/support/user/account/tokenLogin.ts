@@ -34,7 +34,10 @@ async function handler(
       Object.entries(user.team.externalWorkflowVariables).map(([key, value]) => [key, ''])
     );
   }
-
-  return user;
+  const isRootUser = user?.username === 'root';
+  return {
+    ...user,
+    isRoot: isRootUser
+  };
 }
 export default NextAPI(handler);

@@ -169,8 +169,8 @@ function MemberModal({
     () =>
       onUpdateCollaborators({
         members: selectedMemberIdList,
-        groups: selectedGroupIdList,
-        orgs: selectedOrgIdList,
+        groups: selectedGroupIdList ? selectedGroupIdList : [],
+        orgs: selectedOrgIdList ? selectedOrgIdList : [],
         permission: selectedPermission!
       }),
     {
@@ -191,7 +191,6 @@ function MemberModal({
     const selectedOrgs = orgs.filter((org) => selectedOrgIdList.includes(org._id));
     const selectedGroups = groups.filter((group) => selectedGroupIdList.includes(group._id));
     const selectedMembers = members.filter((member) => selectedMemberIdList.includes(member.tmbId));
-
     return [
       ...selectedOrgs.map((item) => ({
         id: `org-${item._id}`,

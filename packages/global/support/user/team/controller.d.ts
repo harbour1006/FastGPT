@@ -8,11 +8,14 @@ export type AuthTeamRoleProps = {
   role?: `${TeamMemberRoleEnum}`;
 };
 export type CreateTeamProps = {
-  name: string;
+  name?: string;
+  ownerId?: string;
   avatar?: string;
   memberName?: string;
   memberAvatar?: string;
   notificationAccount?: string;
+  ownerContact?: string | undefined;
+  ownerPassword?: string;
 };
 export type UpdateTeamProps = Omit<ThirdPartyAccountType, 'externalWorkflowVariable'> & {
   name?: string;
@@ -26,8 +29,10 @@ export type DelMemberProps = {
   tmbId: string;
 };
 export type UpdateTeamMemberProps = {
-  teamId: string;
-  memberId: string;
+  teamId?: string;
+  memberId?: string;
+  memberName?: string;
+  contact?: string;
   role?: TeamMemberSchema['role'];
   status?: TeamMemberSchema['status'];
 };

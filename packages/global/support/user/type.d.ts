@@ -30,6 +30,7 @@ export type UserType = {
   notificationAccount?: string;
   permission: TeamPermission;
   contact?: string;
+  isRoot?: boolean; // 添加 isRoot 属性
 };
 
 export type SourceMemberType = {

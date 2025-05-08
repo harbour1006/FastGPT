@@ -21,7 +21,12 @@ export type ManageModalProps = {
 function ManageModal({ onClose }: ManageModalProps) {
   const { t } = useTranslation();
   const { userInfo } = useUserStore();
-  const { permission, collaboratorList, onUpdateCollaborators, onDelOneCollaborator } =
+  const {
+    permission,
+    collaboratorList,
+    onUpdateCollaborators,
+    onDelOneCollaborator
+  } = //增加datasetId
     useContextSelector(CollaboratorContext, (v) => v);
 
   const { runAsync: onDelete, loading: isDeleting } = useRequest2(onDelOneCollaborator);

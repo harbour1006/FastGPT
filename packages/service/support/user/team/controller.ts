@@ -241,3 +241,64 @@ export async function updateTeam({
     }
   });
 }
+
+//创建团队
+export async function createTeam({
+  name,
+  ownerId,
+  session
+}: {
+  name: string;
+  ownerId: string;
+  session: ClientSession;
+}): Promise<TeamSchema> {
+  // 1. 创建团队
+  const [{ _id: teamId }] = await MongoTeam.create(
+    [
+      {
+        ownerId: ownerId,
+        name: name,
+        createTime: new Date()
+      }
+    ],
+    { session }
+  );
+
+  // 2. 将创建者添加为团队 Owner
+  await MongoTeamMember.create(
+    [
+      {
+        teamId: teamId,
+        userId: ownerId,
+        name: 'Owner', // 默认 Owner 名称
+        role: TeamMemberRoleEnum.owner,
+        status: TeamMemberStatusEnum.active,
+        createTime: new Date(),
+        defaultTeam: false // 不是默认团队
+      }
+    ],
+    { session }
+  );
+
+  // 3. 创建默认群组
+  await MongoMemberGroupModel.create(
+    [
+      {
+        teamId: teamId,
+        name: DefaultGroupName
+        // 可以设置默认的群组头像，或者留空
+      }
+    ],
+    { session }
+  );
+
+  // 4. 创建根组织
+  await createRootOrg({ teamId: teamId, session });
+
+  // 5. 返回新创建的团队信息
+  const newTeam = await MongoTeam.findById(teamId).session(session).lean();
+  if (!newTeam) {
+    return Promise.reject('Failed to retrieve created team');
+  }
+  return newTeam;
+}

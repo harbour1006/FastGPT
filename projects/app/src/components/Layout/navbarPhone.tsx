@@ -53,7 +53,7 @@ const NavbarPhone = ({ unread }: { unread: number }) => {
           '/account/bill',
           '/account/info',
           '/account/team',
-          '/account/usage',
+          // '/account/usage',
           '/account/apikey',
           '/account/setting',
           '/account/inform',

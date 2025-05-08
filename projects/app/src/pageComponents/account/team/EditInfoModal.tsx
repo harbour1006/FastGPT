@@ -26,6 +26,8 @@ const UpdateContact = dynamic(() => import('@/components/support/user/inform/Upd
 export type EditTeamFormDataType = CreateTeamProps & {
   id?: string;
   notificationAccount?: string;
+  name?: string;
+  avatar?: string;
 };
 
 export const defaultForm = {

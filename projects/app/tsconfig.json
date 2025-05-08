@@ -5,8 +5,11 @@
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["../../test/*"]
-    }
+    },
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts", "../../packages/**/*.d.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts", "../../packages/**/*.d.ts", "src/pages/api/support/user/team/member/.update.ts", "src/pageComponents/account/user/.CreateTeamModal.tsx", "src/pageComponents/account/user/.InviteModal.tsx"],
   "exclude": ["**/*.test.ts"]
 }

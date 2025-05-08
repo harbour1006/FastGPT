@@ -3,7 +3,7 @@ import { OAuthEnum } from './constant';
 import { TrackRegisterParams } from './login/api';
 import { TeamMemberStatusEnum } from './team/constant';
 import { OrgType } from './team/org/type';
-import { TeamMemberItemType } from './team/type';
+import { TeamMemberItemType, TeamTmbItemType } from './team/type';
 
 export type PostLoginProps = {
   username: string;
@@ -30,4 +30,5 @@ export type SearchResult = {
   members: Omit<TeamMemberItemType, 'teamId' | 'permission'>[];
   orgs: Omit<OrgType, 'permission' | 'members'>[];
   groups: MemberGroupSchemaType[];
+  myTeams: TeamTmbItemType[];
 };

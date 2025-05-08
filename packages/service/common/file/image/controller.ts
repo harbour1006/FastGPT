@@ -7,7 +7,7 @@ import { readFromSecondary } from '../../mongo/utils';
 import { addHours } from 'date-fns';
 import { imageFileType } from '@fastgpt/global/common/file/constants';
 import { retryFn } from '@fastgpt/global/common/system/utils';
-
+import { MongoTeam } from '../../../support/user/team/teamSchema';
 export const maxImgSize = 1024 * 1024 * 12;
 const base64MimeRegex = /data:image\/([^\)]+);base64/;
 export async function uploadMongoImg({
@@ -41,17 +41,26 @@ export async function uploadMongoImg({
     return Promise.reject(`Invalid image file type: ${mime}`);
   }
 
-  const { _id } = await retryFn(() =>
-    MongoImage.create({
-      teamId,
-      binary,
-      metadata: Object.assign({ mime }, metadata),
-      shareId,
-      expiredTime: forever ? undefined : addHours(new Date(), 1)
-    })
-  );
+  try {
+    const { _id } = await retryFn(() =>
+      MongoImage.create({
+        teamId,
+        binary,
+        metadata: Object.assign({ mime }, metadata),
+        shareId,
+        expiredTime: forever ? undefined : addHours(new Date(), 1)
+      })
+    );
+    console.log('Stored image ID:', _id);
+    const imageUrl = `${process.env.NEXT_PUBLIC_BASE_URL || ''}${imageBaseUrl}${String(_id)}.${extension}`;
+    // 3. 更新 teams 集合的 avatar 字段
+    await MongoTeam.updateOne({ _id: teamId }, { $set: { avatar: imageUrl } });
+    console.log(`Updated team ${teamId} avatar to:`, imageUrl);
 
-  return `${process.env.NEXT_PUBLIC_BASE_URL || ''}${imageBaseUrl}${String(_id)}.${extension}`;
+    return imageUrl;
+  } catch (err) {
+    console.error('Failed to store image:', err); // 捕获存储错误
+  }
 }
 
 const getIdFromPath = (path?: string) => {
@@ -59,12 +68,11 @@ const getIdFromPath = (path?: string) => {
 
   const paths = path.split('/');
   const name = paths[paths.length - 1];
-
+  console.log('11111', name);
   if (!name) return;
 
   const id = name.split('.')[0];
   if (!id || !Types.ObjectId.isValid(id)) return;
-
   return id;
 };
 // 删除旧的头像，新的头像去除过期时间
@@ -91,7 +99,6 @@ export const removeImageByPath = (path?: string, session?: ClientSession) => {
   const name = paths[paths.length - 1];
 
   if (!name) return;
-
   const id = name.split('.')[0];
   if (!id || !Types.ObjectId.isValid(id)) return;
 

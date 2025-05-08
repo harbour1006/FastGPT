@@ -16,7 +16,8 @@ export const useInitApp = () => {
     k?: string;
     sourceDomain?: string;
   };
-  const { loadGitStar, setInitd, feConfigs } = useSystemStore();
+  // const { loadGitStar, setInitd, feConfigs } = useSystemStore();
+  const { setInitd, feConfigs } = useSystemStore();
   const { userInfo } = useUserStore();
   const [scripts, setScripts] = useState<FastGPTFeConfigsType['scripts']>([]);
   const [title, setTitle] = useState(process.env.SYSTEM_NAME || 'AI');
@@ -37,7 +38,7 @@ export const useInitApp = () => {
       );
     }
 
-    loadGitStar();
+    // loadGitStar();
 
     setScripts(scripts || []);
     setInitd();

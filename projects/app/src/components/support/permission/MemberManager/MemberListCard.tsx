@@ -19,7 +19,6 @@ const MemberListCard = ({ tagStyle, ...props }: MemberListCardProps) => {
     CollaboratorContext,
     (v) => v
   );
-
   return (
     <MyBox isLoading={isFetchingCollaborator} userSelect={'none'} {...props}>
       {collaboratorList?.length === 0 ? (

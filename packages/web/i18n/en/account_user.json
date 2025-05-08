@@ -1,0 +1,15 @@
+{
+    "confirm_password": "Confirm Password",
+    "create_new_user": "Create New User",
+    "create_user_success": "User Created Successfully",
+    "create_user_failed": "Failed to Create User",
+    "create_team_required_fields": "Required Fields Missing",
+    "create_user_form_required": "Create User as Needed",
+    "create_user_password_mismatch": "Passwords Do Not Match",
+    "password": "Password",
+    "team_ower": "Team Owner",
+    "total_team_members": "Total {{amount}} Members",
+    "transfer_ownership": "Transfer Ownership",
+    "user_name": "Username",
+    "user_role": "User Role"
+  }

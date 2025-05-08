@@ -61,6 +61,7 @@ export const useUserStore = create<State>()(
           get().initTeamPlanStatus();
 
           const res = await getTokenLogin();
+          console.log('User Info from API:', res); // 添加这行
           get().setUserInfo(res);
 
           //设置html的fontsize

@@ -4,11 +4,13 @@ import type { ParentTreePathItemType } from '@fastgpt/global/common/parentFolder
 import { authDataset } from '@fastgpt/service/support/permission/dataset/auth';
 import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
 import { NextAPI } from '@/service/middleware/entry';
+import { addLog } from '@fastgpt/service/common/system/log';
 
 async function handler(req: NextApiRequest) {
   const { parentId } = req.query as { parentId: string };
 
   if (!parentId) {
+    addLog.debug('parentId is not exsit');
     return [];
   }
 

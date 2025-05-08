@@ -10,7 +10,8 @@ import {
   InviteMemberResponse,
   UpdateInviteProps,
   UpdateStatusProps,
-  UpdateTeamProps
+  UpdateTeamProps,
+  UpdateTeamMemberProps
 } from '@fastgpt/global/support/user/team/controller.d';
 import type { TeamTagItemType, TeamTagSchema } from '@fastgpt/global/support/user/team/type';
 import {
@@ -22,11 +23,17 @@ import { FeTeamPlanStatusType, TeamSubSchema } from '@fastgpt/global/support/wal
 import { TeamInvoiceHeaderType } from '@fastgpt/global/support/user/team/type';
 import { PaginationProps, PaginationResponse } from '@fastgpt/web/common/fetch/type';
 
+export interface CreateTeamResponse {
+  message: string;
+  teamId: string;
+  ownerUserId: string;
+}
+
 /* --------------- team  ---------------- */
 export const getTeamList = (status: `${TeamMemberSchema['status']}`) =>
   GET<TeamTmbItemType[]>(`/support/user/team/list`, { status });
 export const postCreateTeam = (data: CreateTeamProps) =>
-  POST<string>(`/proApi/support/user/team/create`, data);
+  POST<CreateTeamResponse>(`/support/user/team/create`, data);
 export const putUpdateTeam = (data: UpdateTeamProps) => PUT(`/support/user/team/update`, data);
 export const putSwitchTeam = (teamId: string) =>
   PUT<string>(`/proApi/support/user/team/switch`, { teamId });
@@ -38,6 +45,9 @@ export const postInviteTeamMember = (data: InviteMemberProps) =>
   POST<InviteMemberResponse>(`/support/user/team/member/invite`, data);
 export const putUpdateMemberName = (name: string) =>
   PUT(`/proApi/support/user/team/member/updateName`, { name });
+export const putUpdateMember = (tmbId: string, data: UpdateTeamMemberProps) =>
+  PUT(`/support/user/team/member/update/${tmbId}`, data);
+
 export const delRemoveMember = (tmbId: string) =>
   DELETE(`/support/user/team/member/delete`, { tmbId });
 export const updateInviteResult = (data: UpdateInviteProps) =>

@@ -2,7 +2,7 @@ import { GET, POST, PUT } from '@/web/common/api/request';
 import { hashStr } from '@fastgpt/global/common/string/tools';
 import type { ResLogin } from '@/global/support/api/userRes.d';
 import { UserAuthTypeEnum } from '@fastgpt/global/support/user/auth/constants';
-import { UserUpdateParams } from '@/types/user';
+import { UserUpdateParams, CreateUserPayload, CreateUserResponse } from '@/types/user';
 import { UserType } from '@fastgpt/global/support/user/type.d';
 import type {
   FastLoginProps,
@@ -14,6 +14,9 @@ import {
   AccountRegisterBody,
   GetWXLoginQRResponse
 } from '@fastgpt/global/support/user/login/api.d';
+
+export const postCreateUser = (data: CreateUserPayload) =>
+  POST<CreateUserResponse>('/support/user/create', data);
 
 export const sendAuthCode = (data: {
   username: string;
@@ -104,6 +107,7 @@ export const GetSearchUserGroupOrg = (
     members?: boolean;
     orgs?: boolean;
     groups?: boolean;
+    myTeams?: Boolean;
   }
 ) => GET<SearchResult>('/support/user/search', { searchKey, ...options });
 

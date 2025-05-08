@@ -46,7 +46,7 @@ export const getSystemPlugTemplates = (data: GetSystemPluginTemplatesBody) =>
 
 export const getPluginGroups = () => {
   return useSystemStore.getState()?.feConfigs?.isPlus
-    ? GET<PluginGroupSchemaType[]>('/proApi/core/app/plugin/getPluginGroups')
+    ? GET<PluginGroupSchemaType[]>('/core/app/plugin/getPluginGroups')
     : Promise.resolve([defaultGroup]);
 };
 

@@ -22,7 +22,8 @@ export enum TabEnum {
   'apikey' = 'apikey',
   'loginout' = 'loginout',
   'team' = 'team',
-  'model' = 'model'
+  'model' = 'model',
+  'user' = 'user'
 }
 
 const AccountContainer = ({
@@ -57,9 +58,9 @@ const AccountContainer = ({
             value: TabEnum.team
           },
           {
-            icon: 'support/usage/usageRecordLight',
-            label: t('account:usage_records'),
-            value: TabEnum.usage
+            icon: 'support/user/usersLight',
+            label: t('account:user'),
+            value: TabEnum.user
           }
         ]
       : []),
@@ -101,15 +102,15 @@ const AccountContainer = ({
         ]
       : []),
 
-    ...(feConfigs.isPlus
-      ? [
-          {
-            icon: 'support/user/informLight',
-            label: t('account:notifications'),
-            value: TabEnum.inform
-          }
-        ]
-      : []),
+    // ...(feConfigs.isPlus
+    //   ? [
+    //       {
+    //         icon: 'support/user/informLight',
+    //         label: t('account:notifications'),
+    //         value: TabEnum.inform
+    //       }
+    //     ]
+    //   : []),
     {
       icon: 'common/settingLight',
       label: t('common:common.Setting'),

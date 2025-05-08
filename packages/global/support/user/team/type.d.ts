@@ -68,6 +68,8 @@ export type TeamTmbItemType = {
   status: `${TeamMemberStatusEnum}`;
   notificationAccount?: string;
   permission: TeamPermission;
+  contact?: string;
+  createTime?: Date;
 } & ThirdPartyAccountType;
 
 export type TeamMemberItemType = {

@@ -64,7 +64,12 @@ const Info = () => {
   const standardPlan = teamPlanStatus?.standardConstants;
   const { isOpen: isOpenContact, onClose: onCloseContact, onOpen: onOpenContact } = useDisclosure();
 
-  useQuery(['init'], initUserInfo);
+  useQuery(['init'], initUserInfo, {
+    onSuccess: (data) => {
+      console.log('userInfo:', data);
+      console.log('teamPlanStatus:', teamPlanStatus);
+    }
+  });
 
   return (
     <AccountContainer>

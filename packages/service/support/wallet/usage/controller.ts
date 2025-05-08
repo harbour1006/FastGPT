@@ -14,7 +14,7 @@ export async function createUsage(data: CreateUsageProps) {
   try {
     // In FastGPT server
     if (isFastGPTMainService) {
-      await POST('/support/wallet/usage/createUsage', data);
+      // await POST('/support/wallet/usage/createUsage', data);
     } else if (global.reduceAiPointsQueue) {
       // In FastGPT pro server
       await MongoUsage.create(data);

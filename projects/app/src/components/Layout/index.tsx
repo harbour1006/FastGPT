@@ -18,7 +18,7 @@ import WorkorderButton from './WorkorderButton';
 
 const Navbar = dynamic(() => import('./navbar'));
 const NavbarPhone = dynamic(() => import('./navbarPhone'));
-const UpdateInviteModal = dynamic(() => import('@/components/support/user/team/UpdateInviteModal'));
+// const UpdateInviteModal = dynamic(() => import('@/components/support/user/team/UpdateInviteModal'));
 const NotSufficientModal = dynamic(() => import('@/components/support/wallet/NotSufficientModal'));
 const SystemMsgModal = dynamic(() => import('@/components/support/user/inform/SystemMsgModal'));
 const ImportantInform = dynamic(() => import('@/components/support/user/inform/ImportantInform'));
@@ -155,7 +155,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
       </Box>
       {feConfigs?.isPlus && (
         <>
-          {!!userInfo && <UpdateInviteModal />}
+          {/* {!!userInfo && <UpdateInviteModal />} */}
           {notSufficientModalType && <NotSufficientModal type={notSufficientModalType} />}
           {!!userInfo && <SystemMsgModal />}
           {showUpdateNotification && (

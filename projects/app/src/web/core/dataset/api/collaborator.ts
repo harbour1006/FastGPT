@@ -9,7 +9,7 @@ export const getCollaboratorList = (datasetId: string) =>
   GET<CollaboratorItemType[]>('/proApi/core/dataset/collaborator/list', { datasetId });
 
 export const postUpdateDatasetCollaborators = (body: UpdateDatasetCollaboratorBody) =>
-  POST('/proApi/core/dataset/collaborator/update', body);
+  POST('/core/dataset/collaborator/update', body);
 
 export const deleteDatasetCollaborators = (params: DatasetCollaboratorDeleteParams) =>
-  DELETE('/proApi/core/dataset/collaborator/delete', params);
+  DELETE('/core/dataset/collaborator/delete', params);

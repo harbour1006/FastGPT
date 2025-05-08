@@ -16,7 +16,7 @@ import { MongoMemberGroupModel } from '@fastgpt/service/support/permission/membe
 import type { ApiRequestProps, ApiResponseType } from '@fastgpt/service/type/next';
 import { TeamMemberStatusEnum } from '@fastgpt/global/support/user/team/constant';
 import type { SearchResult } from '@fastgpt/global/support/user/api';
-import type { TeamMemberItemType } from '@fastgpt/global/support/user/team/type';
+import type { TeamMemberItemType, TeamTmbItemType } from '@fastgpt/global/support/user/team/type';
 import type { OrgType } from '@fastgpt/global/support/user/team/org/type';
 import { MemberGroupSchemaType } from '@fastgpt/global/support/permission/memberGroup/type';
 
@@ -26,6 +26,7 @@ export type GetSearchUserGroupOrgQuery = {
   members?: boolean;
   orgs?: boolean;
   groups?: boolean;
+  myTeams?: boolean;
 };
 
 // Define the structure of a single search result item (matching list.ts)
@@ -55,7 +56,7 @@ async function handler(
   res: NextApiResponse<ApiResponseType<SearchResult>> // 使用导入的 SearchResult
 ): Promise<SearchResult> {
   // 使用导入的 SearchResult
-  const { searchKey, members = true, orgs = false, groups = false } = req.query;
+  const { searchKey, members = true, orgs = false, groups = false, myTeams = true } = req.query;
   const pageNum = 1;
   const pageSize = '1000';
 
@@ -64,13 +65,15 @@ async function handler(
       // 直接返回 SearchResult 类型的数据
       members: [],
       orgs: [],
-      groups: []
+      groups: [],
+      myTeams: []
     };
   } // 1. Authenticate and authorize user
   const { teamId } = await authUserPer({ req, authToken: true, per: ReadPermissionVal });
   const memberList: Omit<TeamMemberItemType, 'teamId' | 'permission'>[] = [];
   const orgList: Omit<OrgType, 'permission' | 'members'>[] = [];
   const groupList: MemberGroupSchemaType[] = [];
+  const teamList: TeamTmbItemType[] = [];
 
   if (members) {
     const memberMatch = {
@@ -150,6 +153,6 @@ async function handler(
   //       })));
   //     }
   //
-  return { members: memberList, orgs: orgList, groups: groupList }; // 返回符合 SearchResult 类型的数据
+  return { members: memberList, orgs: orgList, groups: groupList, myTeams: teamList }; // 返回符合 SearchResult 类型的数据
 }
 export default NextAPI(handler);

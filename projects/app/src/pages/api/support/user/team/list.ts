@@ -21,7 +21,6 @@ export type TeamListResponse = Array<
     permission: {
       value: number;
       isOwner: boolean;
-
       hasManagePer: boolean;
       hasWritePer: boolean;
       hasReadPer: boolean;
@@ -38,14 +37,15 @@ async function handler(
   const user = await MongoUser.findById(userId).lean();
   if (!user) throw new Error('用户不存在');
 
-  // 2. 构建聚合查询
   const { status } = req.query;
+
+  // 2. 构建聚合查询的 $match 阶段 (根据是否为 root 用户决定)
+  const matchStage =
+    user?.username === 'root' ? {} : { userId: user._id, ...(status && { status }) };
+
   const members = await MongoTeamMember.aggregate([
     {
-      $match: {
-        userId: user._id,
-        ...(status && { status })
-      }
+      $match: matchStage
     },
     {
       $lookup: {
@@ -57,6 +57,15 @@ async function handler(
     },
     { $unwind: '$team' },
     {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
       $project: {
         _id: 1,
         teamId: 1,
@@ -64,13 +73,16 @@ async function handler(
         status: 1,
         teamName: '$team.name',
         teamAvatar: '$team.avatar',
-        memberName: '$name'
+        memberName: '$user.username',
+        createTime: '$createTime',
+        contact: '$user.contact',
+        userId: '$userId'
         // notificationAccount: '$team.notificationAccount'
       }
     }
   ]);
 
-  // 3. 构建数据结构（移除外层 UserType 嵌套）
+  // 3. 构建数据结构
   return Promise.all(
     members.map(async (member) => {
       const Per = await getResourcePermission({
@@ -85,7 +97,7 @@ async function handler(
       });
 
       return {
-        userId: user._id.toString(),
+        userId: member.userId.toString(),
         teamId: member.teamId.toString(),
         teamName: member.teamName,
         memberName: member.memberName,
@@ -93,8 +105,9 @@ async function handler(
         tmbId: member._id.toString(),
         role: member.role,
         status: member.status,
+        contact: member.contact,
+        createTime: member.createTime,
         permission: {
-          // 手动展开属性
           value: permission.value,
           isOwner: permission.isOwner,
           _permissionList: permission._permissionList,
@@ -102,7 +115,9 @@ async function handler(
           hasWritePer: permission.hasWritePer,
           hasReadPer: permission.hasReadPer
         },
-        ...(member.notificationAccount && { notificationAccount: member.notificationAccount })
+        ...(member.team?.notificationAccount && {
+          notificationAccount: member.team.notificationAccount
+        })
       };
     })
   );

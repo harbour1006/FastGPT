@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { createContext } from 'use-context-selector';
 import type { EditTeamFormDataType } from './EditInfoModal';
 import dynamic from 'next/dynamic';
@@ -74,6 +74,8 @@ export const TeamModalContextProvider = ({ children }: { children: ReactNode }) 
     manual: false,
     refreshDeps: [userInfo?._id]
   });
+
+  useEffect(() => {}, [myTeams]);
 
   const {
     data: orgs = [],

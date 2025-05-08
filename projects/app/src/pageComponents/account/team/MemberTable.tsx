@@ -19,7 +19,6 @@ import { useUserStore } from '@/web/support/user/useUserStore';
 import { useConfirm } from '@fastgpt/web/hooks/useConfirm';
 import { delRemoveMember, updateStatus } from '@/web/support/user/team/api';
 import Tag from '@fastgpt/web/components/common/Tag';
-import Icon from '@fastgpt/web/components/common/Icon';
 import { useContextSelector } from 'use-context-selector';
 import { TeamContext } from './context';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
@@ -31,17 +30,15 @@ import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 import { delLeaveTeam } from '@/web/support/user/team/api';
 import { GetSearchUserGroupOrg, postSyncMembers } from '@/web/support/user/api';
 import MyLoading from '@fastgpt/web/components/common/MyLoading';
-import {
-  TeamMemberRoleEnum,
-  TeamMemberStatusEnum
-} from '@fastgpt/global/support/user/team/constant';
 import format from 'date-fns/format';
 import OrgTags from '@/components/support/user/team/OrgTags';
 import SearchInput from '@fastgpt/web/components/common/Input/SearchInput';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { downloadFetch } from '@/web/common/system/utils';
+import { LuPencil, LuTrash2 } from 'react-icons/lu';
+import type { TeamTmbItemType } from '@fastgpt/global/support/user/team/type';
 
-const InviteModal = dynamic(() => import('./InviteModal'));
+const CreateTeamModal = dynamic(() => import('./CreateTeamModal'));
 const TeamTagModal = dynamic(() => import('@/components/support/user/team/TeamTagModal'));
 
 function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
@@ -57,14 +54,20 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
     refetchMembers,
     onSwitchTeam,
     MemberScrollData,
-    orgs
+    orgs,
+    setEditTeamData
   } = useContextSelector(TeamContext, (v) => v);
+
   const {
     isOpen: isOpenTeamTagsAsync,
     onOpen: onOpenTeamTagsAsync,
     onClose: onCloseTeamTagsAsync
   } = useDisclosure();
-  const { isOpen: isOpenInvite, onOpen: onOpenInvite, onClose: onCloseInvite } = useDisclosure();
+  const {
+    isOpen: isOpenCreateTeam,
+    onOpen: onOpenCreateTeam,
+    onClose: onCloseCreateTeam
+  } = useDisclosure();
   const { ConfirmModal: ConfirmRemoveMemberModal, openConfirm: openRemoveMember } = useConfirm({
     type: 'delete'
   });
@@ -79,23 +82,26 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
   const isSyncMember = feConfigs.register_method?.includes('sync');
 
   const { data: searchMembersData, run: runSearchMembers } = useRequest2(
-    // 获取 run 函数
-    () => GetSearchUserGroupOrg(searchText, { members: true, orgs: false, groups: false }),
+    () =>
+      GetSearchUserGroupOrg(searchText, {
+        members: true,
+        orgs: false,
+        groups: false,
+        myTeams: true
+      }),
     {
-      manual: true, // 设置为手动触发
+      manual: true,
       throttleWait: 500
-      // refreshDeps: [searchText] // 不再依赖 searchText 变化自动刷新
     }
   );
 
   const handleSearch = () => {
-    runSearchMembers(); // 手动触发搜索 API
+    runSearchMembers();
   };
 
   const { runAsync: onLeaveTeam } = useRequest2(
     async () => {
       const defaultTeam = myTeams[0];
-      // change to personal team
       onSwitchTeam(defaultTeam.teamId);
       return delLeaveTeam();
     },
@@ -127,7 +133,41 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
     errorToast: t('common:user.team.invite.Reject')
   });
 
+  const { runAsync: onDelete, loading: isDeleting } = useRequest2(
+    (tmbId: string) => delRemoveMember(tmbId),
+    {
+      onSuccess() {
+        refetchTeams();
+        refetchMembers();
+        toast({
+          status: 'success',
+          title: t('common:common.Delete Success')
+        });
+      },
+      errorToast: t('common:common.Delete Failed')
+    }
+  );
+
+  const onEdit = (team: TeamTmbItemType) => {
+    setEditTeamData({
+      id: team.teamId,
+      name: team.teamName,
+      // teamName: team.teamName,
+      avatar: team.teamAvatar || undefined,
+      memberName: team.memberName || undefined,
+      notificationAccount: team.contact || undefined,
+      ownerContact: team.contact || undefined,
+      ownerId: userInfo?._id || undefined,
+      memberAvatar: undefined
+    });
+  };
+
   const isLoading = isUpdateInvite || isSyncing;
+
+  const handleCreateTeamSuccess = useCallback(() => {
+    refetchTeams();
+    refetchMembers();
+  }, [refetchTeams, refetchMembers]);
 
   return (
     <>
@@ -138,12 +178,12 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
           <Box width={'200px'}>
             <SearchInput
               placeholder={t('account_team:search_member')}
-              value={searchText} // 需要绑定 value
+              value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              onSearch={handleSearch} // 当按下回车键时触发
+              onSearch={handleSearch}
             />
           </Box>
-          {userInfo?.team.permission.hasManagePer && feConfigs?.show_team_chat && (
+          {userInfo?.team.permission.hasManagePer && !isSyncMember && (
             <Button
               variant={'whitePrimary'}
               size="md"
@@ -177,25 +217,10 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
               size="md"
               borderRadius={'md'}
               ml={3}
-              leftIcon={<MyIcon name="common/inviteLight" w={'16px'} color={'white'} />}
-              onClick={() => {
-                if (
-                  teamPlanStatus?.standardConstants?.maxTeamMember &&
-                  teamPlanStatus.standardConstants.maxTeamMember <= members.length
-                ) {
-                  toast({
-                    status: 'warning',
-                    title: t('common:user.team.Over Max Member Tip', {
-                      max: teamPlanStatus.standardConstants.maxTeamMember
-                    })
-                  });
-                  setNotSufficientModalType(TeamErrEnum.teamMemberOverSize);
-                } else {
-                  onOpenInvite();
-                }
-              }}
+              leftIcon={<MyIcon name="common/addLight" w={'16px'} color={'white'} />}
+              onClick={onOpenCreateTeam}
             >
-              {t('account_team:user_team_invite_member')}
+              {t('account_team:create_new_team')}
             </Button>
           )}
           {userInfo?.team.permission.isOwner && isSyncMember && (
@@ -237,10 +262,10 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
               <Thead>
                 <Tr bgColor={'white !important'}>
                   <Th borderLeftRadius="6px" bgColor="myGray.100">
-                    {t('account_team:user_name')}
+                    {t('account_team:team_name')}
                   </Th>
+                  <Th bgColor="myGray.100">{t('account_team:team_ower')}</Th>
                   <Th bgColor="myGray.100">{t('account_team:contact')}</Th>
-                  <Th bgColor="myGray.100">{t('account_team:org')}</Th>
                   <Th bgColor="myGray.100">{t('account_team:join_update_time')}</Th>
                   <Th borderRightRadius="6px" bgColor="myGray.100">
                     {t('common:common.Action')}
@@ -248,20 +273,19 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                 </Tr>
               </Thead>
               <Tbody>
-                {(searchText && searchMembersData ? searchMembersData.members : members)?.map(
-                  (member) => (
-                    <Tr key={member.tmbId} overflow={'unset'}>
+                {(searchText && searchMembersData ? searchMembersData.myTeams : myTeams)?.map(
+                  (team) => (
+                    <Tr key={team.tmbId} overflow={'unset'}>
                       <Td>
                         <HStack>
-                          <Avatar src={member.avatar} w={['18px', '22px']} borderRadius={'50%'} />
                           <Box className={'textEllipsis'}>
-                            {member.memberName}
-                            {member.status === 'waiting' && (
+                            {team.teamName}
+                            {team.status === 'waiting' && (
                               <Tag ml="2" colorSchema="yellow">
                                 {t('account_team:waiting')}
                               </Tag>
                             )}
-                            {member.status === 'leave' && (
+                            {team.status === 'leave' && (
                               <Tag ml="2" colorSchema="gray">
                                 {t('account_team:leave')}
                               </Tag>
@@ -269,85 +293,41 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                           </Box>
                         </HStack>
                       </Td>
-                      <Td maxW={'300px'}>{member.contact || '-'}</Td>
-                      <Td maxWidth="300px">
-                        {(() => {
-                          const memberOrgs = orgs.filter((org) =>
-                            org.members.find((v) => String(v.tmbId) === String(member.tmbId))
-                          );
-                          const memberPathIds = memberOrgs.map((org) =>
-                            (org.path + '/' + org.pathId).split('/').slice(0)
-                          );
-                          const memberOrgNames = memberPathIds.map((pathIds) =>
-                            pathIds.map((id) => orgs.find((v) => v.pathId === id)?.name).join('/')
-                          );
-                          return <OrgTags orgs={memberOrgNames} type="tag" />;
-                        })()}
-                      </Td>
+                      <Td maxW={'300px'}>{team.memberName || '-'}</Td>
+                      <Td maxW={'300px'}>{team.contact || '-'}</Td>
                       <Td maxW={'300px'}>
                         <VStack gap={0}>
-                          <Box>{format(new Date(member.createTime), 'yyyy-MM-dd HH:mm:ss')}</Box>
                           <Box>
-                            {member.updateTime
-                              ? format(new Date(member.updateTime), 'yyyy-MM-dd HH:mm:ss')
+                            {team.createTime
+                              ? format(new Date(team.createTime), 'yyyy-MM-dd HH:mm:ss')
                               : '-'}
                           </Box>
                         </VStack>
                       </Td>
                       <Td>
-                        {userInfo?.team.permission.hasManagePer &&
-                          member.role !== TeamMemberRoleEnum.owner &&
-                          member.tmbId !== userInfo?.team.tmbId &&
-                          (member.status !== TeamMemberStatusEnum.leave ? (
-                            <Icon
-                              name={'common/trash'}
-                              cursor={'pointer'}
-                              w="1rem"
-                              p="1"
-                              borderRadius="sm"
-                              _hover={{
-                                color: 'red.600',
-                                bgColor: 'myGray.100'
-                              }}
-                              onClick={() => {
-                                openRemoveMember(
-                                  () =>
-                                    delRemoveMember(member.tmbId).then(() =>
-                                      Promise.all([refetchGroups(), refetchMembers()])
-                                    ),
-                                  undefined,
-                                  t('account_team:remove_tip', {
-                                    username: member.memberName
-                                  })
-                                )();
-                              }}
-                            />
-                          ) : (
-                            <Icon
-                              name={'common/confirm/restoreTip'}
-                              cursor={'pointer'}
-                              w="1rem"
-                              p="1"
-                              borderRadius="sm"
-                              _hover={{
-                                color: 'primary.500',
-                                bgColor: 'myGray.100'
-                              }}
-                              onClick={() => {
-                                openRestoreMember(
-                                  () =>
-                                    onRestore({
-                                      tmbId: member.tmbId,
-                                      status: TeamMemberStatusEnum.active
-                                    }),
-                                  undefined,
-                                  t('account_team:restore_tip', {
-                                    username: member.memberName
-                                  })
-                                )();
-                              }}
-                            />
-                          ))}
+                        <Flex align="center" gap={2}>
+                          {userInfo?.isRoot && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                leftIcon={<LuPencil />}
+                                onClick={() => onEdit(team)}
+                              >
+                                {t('common:common.Edit')}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                leftIcon={<LuTrash2 />}
+                                isLoading={isDeleting}
+                                onClick={() => openRemoveMember(() => onDelete(team.tmbId))()}
+                              >
+                                {t('common:common.Delete')}
+                              </Button>
+                            </>
+                          )}
+                        </Flex>
                       </Td>
                     </Tr>
                   )
@@ -361,13 +341,11 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
       </Box>
 
       <ConfirmLeaveTeamModal />
-      {isOpenInvite && userInfo?.team?.teamId && (
-        <InviteModal
-          teamId={userInfo.team.teamId}
-          onClose={onCloseInvite}
-          onSuccess={refetchMembers}
-        />
-      )}
+      <CreateTeamModal
+        isOpen={isOpenCreateTeam}
+        onClose={onCloseCreateTeam}
+        onSuccess={handleCreateTeamSuccess}
+      />
       {isOpenTeamTagsAsync && <TeamTagModal onClose={onCloseTeamTagsAsync} />}
     </>
   );
