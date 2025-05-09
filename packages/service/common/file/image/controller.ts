@@ -60,6 +60,7 @@ export async function uploadMongoImg({
     return imageUrl;
   } catch (err) {
     console.error('Failed to store image:', err); // 捕获存储错误
+    return 'Upload to MongoDB failed'; // 在 catch 块中返回一个字符串
   }
 }
 
