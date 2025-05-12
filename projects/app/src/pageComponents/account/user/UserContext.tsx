@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { createContext } from 'use-context-selector';
-// import type { EditTeamFormDataType } from './EditUserModal';
+import type { EditTeamFormDataType } from '../team/EditInfoModal';
 import dynamic from 'next/dynamic';
 import { getTeamList, getTeamMembers, putSwitchTeam } from '@/web/support/user/team/api';
 import { TeamMemberStatusEnum } from '@fastgpt/global/support/user/team/constant';
@@ -25,7 +25,7 @@ type TeamModalContextType = {
   currentTeamId: string | undefined; // 添加当前团队 ID 状态
   contact: string | undefined;
   onSwitchTeam: (teamId: string) => void;
-  // setEditTeamData: React.Dispatch<React.SetStateAction<EditTeamFormDataType | undefined>>;
+  setEditTeamData: React.Dispatch<React.SetStateAction<EditTeamFormDataType | undefined>>;
 
   refetchMembers: () => void;
   refetchTeams: () => void;
@@ -46,9 +46,9 @@ export const TeamContext = createContext<TeamModalContextType>({
   onSwitchTeam: function (_teamId: string): void {
     throw new Error('Function not implemented.');
   },
-  // setEditTeamData: function (_value: React.SetStateAction<EditTeamFormDataType | undefined>): void {
-  //     throw new Error('Function not implemented.');
-  // },
+  setEditTeamData: function (_value: React.SetStateAction<EditTeamFormDataType | undefined>): void {
+    throw new Error('Function not implemented.');
+  },
   refetchTeams: function (): void {
     throw new Error('Function not implemented.');
   },
@@ -67,7 +67,7 @@ export const TeamContext = createContext<TeamModalContextType>({
 
 export const TeamModalContextProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
-  // const [editTeamData, setEditTeamData] = useState<EditTeamFormDataType>();
+  const [editTeamData, setEditTeamData] = useState<EditTeamFormDataType>();
   const { userInfo, initUserInfo } = useUserStore();
   console.log('11111111', userInfo);
   const [currentTeamId, setCurrentTeamId] = useState<string | undefined>(userInfo?.team?.teamId); // 初始化为当前用户的 teamId
@@ -146,7 +146,7 @@ export const TeamModalContextProvider = ({ children }: { children: ReactNode }) 
     currentTeamId, // 导出 currentTeamId
 
     // create | update team
-    // setEditTeamData,
+    setEditTeamData,
     members,
     refetchMembers,
     groups,
