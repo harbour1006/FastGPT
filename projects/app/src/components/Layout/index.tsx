@@ -21,7 +21,7 @@ const NavbarPhone = dynamic(() => import('./navbarPhone'));
 // const UpdateInviteModal = dynamic(() => import('@/components/support/user/team/UpdateInviteModal'));
 const NotSufficientModal = dynamic(() => import('@/components/support/wallet/NotSufficientModal'));
 const SystemMsgModal = dynamic(() => import('@/components/support/user/inform/SystemMsgModal'));
-const ImportantInform = dynamic(() => import('@/components/support/user/inform/ImportantInform'));
+// const ImportantInform = dynamic(() => import('@/components/support/user/inform/ImportantInform'));
 const UpdateContact = dynamic(() => import('@/components/support/user/inform/UpdateContactModal'));
 
 const pcUnShowLayoutRoute: Record<string, boolean> = {
@@ -161,9 +161,9 @@ const Layout = ({ children }: { children: JSX.Element }) => {
           {showUpdateNotification && (
             <UpdateContact onClose={() => setIsUpdateNotification(false)} mode="contact" />
           )}
-          {!!userInfo && importantInforms.length > 0 && (
+          {/* {!!userInfo && importantInforms.length > 0 && (
             <ImportantInform informs={importantInforms} refetch={refetchUnRead} />
-          )}
+          )} */}
           <WorkorderButton />
         </>
       )}
