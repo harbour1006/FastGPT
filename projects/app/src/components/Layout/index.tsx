@@ -20,7 +20,7 @@ const Navbar = dynamic(() => import('./navbar'));
 const NavbarPhone = dynamic(() => import('./navbarPhone'));
 // const UpdateInviteModal = dynamic(() => import('@/components/support/user/team/UpdateInviteModal'));
 const NotSufficientModal = dynamic(() => import('@/components/support/wallet/NotSufficientModal'));
-const SystemMsgModal = dynamic(() => import('@/components/support/user/inform/SystemMsgModal'));
+// const SystemMsgModal = dynamic(() => import('@/components/support/user/inform/SystemMsgModal'));
 // const ImportantInform = dynamic(() => import('@/components/support/user/inform/ImportantInform'));
 const UpdateContact = dynamic(() => import('@/components/support/user/inform/UpdateContactModal'));
 
@@ -157,7 +157,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
         <>
           {/* {!!userInfo && <UpdateInviteModal />} */}
           {notSufficientModalType && <NotSufficientModal type={notSufficientModalType} />}
-          {!!userInfo && <SystemMsgModal />}
+          {/* {!!userInfo && <SystemMsgModal />} */}
           {showUpdateNotification && (
             <UpdateContact onClose={() => setIsUpdateNotification(false)} mode="contact" />
           )}
