@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, Flex, useTheme } from '@chakra-ui/react';
-import { getInforms, readInform } from '@/web/support/user/inform/api';
+import { getInforms } from '@/web/support/user/inform/api';
 import { formatTimeToChatTime } from '@fastgpt/global/common/string/time';
 import { usePagination } from '@fastgpt/web/hooks/usePagination';
 import { useLoading } from '@fastgpt/web/hooks/useLoading';
@@ -51,7 +51,7 @@ const InformTable = () => {
                     size={'xs'}
                     onClick={async () => {
                       if (!item.read) {
-                        await readInform(item._id);
+                        // await readInform(item._id);
                         getData(pageNum);
                       }
                     }}
