@@ -25,7 +25,7 @@ export const sendAuthCode = (data: {
   captcha: string;
 }) => POST(`/proApi/support/user/inform/sendAuthCode`, data);
 
-export const getTokenLogin = () =>
+export const getTokenLogin = (p0: { forceRefresh: boolean }) =>
   GET<UserType>('/support/user/account/tokenLogin', {}, { maxQuantity: 1 });
 export const oauthLogin = (params: OauthLoginProps) =>
   POST<ResLogin>('/proApi/support/user/account/login/oauth', params);

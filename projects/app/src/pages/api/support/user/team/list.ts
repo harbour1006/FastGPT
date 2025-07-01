@@ -1,10 +1,12 @@
-// File: projects/app/src/pages/api/support/user/team/list.ts
 import type { ApiRequestProps, ApiResponseType } from '@fastgpt/service/type/next';
 import { NextAPI } from '@/service/middleware/entry';
 import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { MongoUser } from '@fastgpt/service/support/user/schema';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
-import { TeamMemberStatusEnum } from '@fastgpt/global/support/user/team/constant';
+import {
+  TeamMemberStatusEnum,
+  TeamMemberRoleEnum
+} from '@fastgpt/global/support/user/team/constant';
 import { getResourcePermission } from '@fastgpt/service/support/permission/controller';
 import { PerResourceTypeEnum } from '@fastgpt/global/support/permission/constant';
 import { TeamPermission } from '@fastgpt/global/support/permission/user/controller';
@@ -14,6 +16,7 @@ import type { TeamTmbItemType } from '@fastgpt/global/support/user/team/type';
 
 export type TeamListQuery = {
   status?: TeamMemberStatusEnum;
+  role?: TeamMemberRoleEnum;
 };
 
 export type TeamListResponse = Array<
@@ -37,11 +40,17 @@ async function handler(
   const user = await MongoUser.findById(userId).lean();
   if (!user) throw new Error('用户不存在');
 
-  const { status } = req.query;
+  const { status, role } = req.query;
 
   // 2. 构建聚合查询的 $match 阶段 (根据是否为 root 用户决定)
   const matchStage =
-    user?.username === 'root' ? {} : { userId: user._id, ...(status && { status }) };
+    user?.username === 'root'
+      ? { ...(role && { role }) } // 如果是 root 用户，只根据 role 过滤
+      : {
+          userId: user._id,
+          ...(status && { status }),
+          ...(role && { role }) // <--- 关键修改：添加 role 过滤条件
+        };
 
   const members = await MongoTeamMember.aggregate([
     {

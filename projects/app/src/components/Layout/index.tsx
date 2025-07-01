@@ -16,6 +16,7 @@ import { useTranslation } from 'next-i18next';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import WorkorderButton from './WorkorderButton';
 
+export const navbarWidth = '0px'; // 或者你需要的具体数值
 const Navbar = dynamic(() => import('./navbar'));
 const NavbarPhone = dynamic(() => import('./navbarPhone'));
 // const UpdateInviteModal = dynamic(() => import('@/components/support/user/team/UpdateInviteModal'));
@@ -47,7 +48,7 @@ const phoneUnShowLayoutRoute: Record<string, boolean> = {
   '/price': true
 };
 
-export const navbarWidth = '64px';
+export const navbarHeight = '60px'; // 重命名为 navbarHeight
 
 const Layout = ({ children }: { children: JSX.Element }) => {
   const router = useRouter();
@@ -65,7 +66,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
     [router.pathname, router.query]
   );
 
-  // System hook    临时注释掉
+  // System hook     临时注释掉
   // const { data, refetch: refetchUnRead } = useQuery(['getUnreadCount'], getUnreadCount, {
   const { data, refetch: refetchUnRead } = useQuery({
     // enabled: !!userInfo && !!feConfigs.isPlus,
@@ -124,10 +125,12 @@ const Layout = ({ children }: { children: JSX.Element }) => {
               <Auth>{children}</Auth>
             ) : (
               <Auth>
-                <Box h={'100%'} position={'fixed'} left={0} top={0} w={navbarWidth}>
+                <Box position={'fixed'} top={0} left={0} right={0} zIndex={10}>
                   <Navbar unread={unread} />
                 </Box>
-                <Box h={'100%'} ml={navbarWidth} overflow={'overlay'}>
+                <Box h={'100%'} pt={navbarHeight} overflow={'overlay'}>
+                  {' '}
+                  {/* 使用 paddingTop */}
                   {children}
                 </Box>
               </Auth>

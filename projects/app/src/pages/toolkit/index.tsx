@@ -64,7 +64,7 @@ const Toolkit = () => {
         return regx.test(str);
       });
   }, [pluginGroupTypes, plugins, selectedType, search]);
-
+  console.log('pluginGroups', pluginGroups);
   return (
     <Flex flexDirection={'column'} h={'100%'} overflow={'auto'}>
       {/* Mask */}
@@ -85,10 +85,10 @@ const Toolkit = () => {
         <Box
           position={'fixed'}
           left={isPc ? navbarWidth : 0}
-          top={0}
-          bg={'myGray.25'}
+          top={'60px'} // 修改 top 属性
+          bg={'myGray'}
           w={['60vw', '200px']}
-          h={'full'}
+          h={'calc(100% - 60px)'} // 同时调整高度，避免超出底部
           borderLeft={'1px solid'}
           borderRight={'1px solid'}
           borderColor={'myGray.200'}
@@ -173,18 +173,11 @@ const Toolkit = () => {
       )}
       <Box ml={[0, '200px']} p={[5, 6]}>
         <Flex alignItems={'center'}>
-          <Flex flex={1} fontSize={'xl'} fontWeight={'medium'} color={'myGray.900'}>
-            {isPc ? (
-              <Box>
-                {t(
-                  pluginGroups?.find((group) => group.groupId === selectedGroup)?.groupName as any
-                )}
-              </Box>
-            ) : (
-              <MyIcon name="menu" w={'20px'} mr={1.5} onClick={onOpen} />
-            )}
-          </Flex>
-          <Box w={['60vw', '260px']}>
+          {/* 菜单图标 (仅在非 PC 端显示) */}
+          {!isPc && <MyIcon name="menu" w={'20px'} mr={2} onClick={onOpen} />}
+
+          {/* 搜索框移动到左侧 */}
+          <Box mr={4} w={['60vw', '260px']}>
             <SearchInput
               value={search}
               bg={'white'}

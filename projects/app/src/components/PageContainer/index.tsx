@@ -10,7 +10,7 @@ const PageContainer = ({
 }: BoxProps & { isLoading?: boolean; insertProps?: BoxProps }) => {
   const theme = useTheme();
   return (
-    <MyBox h={'100%'} py={[0, '16px']} pr={[0, '16px']} {...props}>
+    <MyBox h={'100%'} py={[0, '0px']} pr={[0, '0px']} {...props}>
       <MyBox
         isLoading={isLoading}
         h={'100%'}
@@ -19,7 +19,7 @@ const PageContainer = ({
         boxShadow={'1.5'}
         overflow={'overlay'}
         bg={'myGray.25'}
-        borderRadius={[0, '16px']}
+        // borderRadius={[0, '16px']}
         overflowX={'hidden'}
         {...insertProps}
       >

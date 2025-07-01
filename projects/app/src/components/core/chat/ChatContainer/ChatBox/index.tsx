@@ -891,6 +891,28 @@ const ChatBox = ({
     }
   }));
 
+  const renderChatInputComponent = useCallback(() => {
+    return (
+      <ChatInput
+        onSendMessage={sendPrompt}
+        onStop={() => chatController.current?.abort('stop')}
+        TextareaDom={TextareaDom}
+        resetInputVal={resetInputVal}
+        chatForm={chatForm}
+      />
+    );
+  }, [
+    onStartChat,
+    chatStarted,
+    active,
+    isInteractive,
+    sendPrompt,
+    chatController,
+    TextareaDom,
+    resetInputVal,
+    chatForm
+  ]);
+
   const RenderRecords = useMemo(() => {
     return (
       <ScrollData
@@ -903,7 +925,7 @@ const ChatBox = ({
         pb={3}
       >
         <Box id="chat-container" maxW={['100%', '92%']} h={'100%'} mx={'auto'}>
-          {showEmpty && <Empty />}
+          {showEmpty && <Empty renderChatInputArea={renderChatInputComponent} />}
           {!!welcomeText && <WelcomeBox welcomeText={welcomeText} />}
           {/* variable input */}
           {!!variableList?.length && (
@@ -1038,7 +1060,7 @@ const ChatBox = ({
       {/* chat box container */}
       {RenderRecords}
       {/* message input */}
-      {onStartChat && chatStarted && active && !isInteractive && (
+      {onStartChat && chatStarted && active && !isInteractive && !showEmpty && (
         <ChatInput
           onSendMessage={sendPrompt}
           onStop={() => chatController.current?.abort('stop')}

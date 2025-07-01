@@ -1,5 +1,6 @@
 import React, { ReactNode, useState, useEffect, useCallback } from 'react';
 import { createContext } from 'use-context-selector';
+import { Box, Flex } from '@chakra-ui/react';
 import type { EditTeamFormDataType } from '../team/EditInfoModal';
 import dynamic from 'next/dynamic';
 import { getTeamList, getTeamMembers, putSwitchTeam } from '@/web/support/user/team/api';
@@ -13,20 +14,18 @@ import { MemberGroupListType } from '@fastgpt/global/support/permission/memberGr
 import { useScrollPagination } from '@fastgpt/web/hooks/useScrollPagination';
 import { getOrgList } from '@/web/support/user/team/org/api';
 import { OrgType } from '@fastgpt/global/support/user/team/org/type';
-
+import { useToast } from '@fastgpt/web/hooks/useToast';
 const EditInfoModal = dynamic(() => import('./EditUserModal'));
-
 type TeamModalContextType = {
   myTeams: TeamTmbItemType[];
   members: TeamMemberItemType[];
   groups: MemberGroupListType;
   orgs: OrgType[];
   isLoading: boolean;
-  currentTeamId: string | undefined; // 添加当前团队 ID 状态
+  currentTeamId: string | undefined;
   contact: string | undefined;
-  onSwitchTeam: (teamId: string) => void;
+  onSwitchTeam: (teamId: string) => Promise<void>;
   setEditTeamData: React.Dispatch<React.SetStateAction<EditTeamFormDataType | undefined>>;
-
   refetchMembers: () => void;
   refetchTeams: () => void;
   refetchGroups: () => void;
@@ -34,45 +33,41 @@ type TeamModalContextType = {
   teamSize: number;
   MemberScrollData: ReturnType<typeof useScrollPagination>['ScrollData'];
 };
-
 export const TeamContext = createContext<TeamModalContextType>({
   myTeams: [],
   groups: [],
   members: [],
   orgs: [],
   isLoading: false,
-  currentTeamId: undefined, // 初始化为 undefined
+  currentTeamId: undefined,
   contact: undefined,
-  onSwitchTeam: function (_teamId: string): void {
+  onSwitchTeam: async (_teamId: string) => {
     throw new Error('Function not implemented.');
   },
-  setEditTeamData: function (_value: React.SetStateAction<EditTeamFormDataType | undefined>): void {
+  setEditTeamData: (_value: React.SetStateAction<EditTeamFormDataType | undefined>) => {
     throw new Error('Function not implemented.');
   },
-  refetchTeams: function (): void {
+  refetchTeams: () => {
     throw new Error('Function not implemented.');
   },
-  refetchMembers: function (): void {
+  refetchMembers: () => {
     throw new Error('Function not implemented.');
   },
-  refetchGroups: function (): void {
+  refetchGroups: () => {
     throw new Error('Function not implemented.');
   },
-  refetchOrgs: function (): void {
+  refetchOrgs: () => {
     throw new Error('Function not implemented.');
   },
   teamSize: 0,
   MemberScrollData: () => <></>
 });
-
 export const TeamModalContextProvider = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [editTeamData, setEditTeamData] = useState<EditTeamFormDataType>();
-  const { userInfo, initUserInfo } = useUserStore();
-  console.log('11111111', userInfo);
-  const [currentTeamId, setCurrentTeamId] = useState<string | undefined>(userInfo?.team?.teamId); // 初始化为当前用户的 teamId
-  const [contact, setContact] = useState<string | undefined>(); // 初始化为当前用户的 teamId
-  console.log('currentTeamId', currentTeamId);
+  const { userInfo, initUserInfo, setUserInfo } = useUserStore();
+  const [currentTeamId, setCurrentTeamId] = useState<string | undefined>(userInfo?.team?.teamId);
   const {
     data: myTeams = [],
     loading: isLoadingTeams,
@@ -81,71 +76,70 @@ export const TeamModalContextProvider = ({ children }: { children: ReactNode }) 
     manual: false,
     refreshDeps: [userInfo?._id]
   });
-
   useEffect(() => {
-    if (userInfo?.team?.teamId && !currentTeamId) {
-      setCurrentTeamId(userInfo.team.teamId);
+    if (currentTeamId && userInfo?.team?.teamId !== currentTeamId) {
+      // 保持 currentTeamId 优先
+      setCurrentTeamId(currentTeamId); // 防止回滚
+    } else if (!currentTeamId && userInfo?.team?.teamId) {
+      setCurrentTeamId(userInfo.team.teamId); // 初始值
     }
   }, [userInfo?.team?.teamId, currentTeamId]);
-
   const {
     data: orgs = [],
     loading: isLoadingOrgs,
     refresh: refetchOrgs
   } = useRequest2(getOrgList, {
     manual: false,
-    refreshDeps: [currentTeamId] // 依赖 currentTeamId
+    refreshDeps: [currentTeamId]
   });
-
-  // member action
-
+  const teamIdParam = userInfo?.isRoot ? undefined : currentTeamId;
   const {
     data: members = [],
     isLoading: loadingMembers,
     refreshList: refetchMembers,
     total: memberTotal,
     ScrollData: MemberScrollData
-    // setParams: setMemberParams // 获取 setParams 函数
   } = useScrollPagination(getTeamMembers, {
     pageSize: 1000,
     params: {
       withLeaved: true,
-      teamId: currentTeamId // 初始包含 teamId
+      teamId: teamIdParam
     },
-    refreshDeps: [currentTeamId] // 当 currentTeamId 变化时重新加载
+    refreshDeps: [currentTeamId]
   });
-
   const onSwitchTeam = useCallback(
     async (teamId: string) => {
-      setCurrentTeamId(teamId); // 更新当前团队 ID
-      await putSwitchTeam(teamId);
-      return initUserInfo();
+      try {
+        const response = await putSwitchTeam(teamId);
+        setUserInfo(response.data);
+        setCurrentTeamId(teamId);
+        refetchMembers(); // 刷新成员数据
+        console.log('Team switched successfully, new currentTeamId:', teamId);
+      } catch (error) {
+        console.error('Failed to switch team:', error);
+        toast({ status: 'error', title: t('common:user.team.Switch Team Failed') });
+      }
     },
-    [initUserInfo, putSwitchTeam, setCurrentTeamId]
+    [setUserInfo, refetchMembers, toast, t]
   );
-
   const {
     data: groups = [],
     loading: isLoadingGroups,
     refresh: refetchGroups
   } = useRequest2(getGroupList, {
     manual: false,
-    refreshDeps: [currentTeamId] // 依赖 currentTeamId
+    refreshDeps: [currentTeamId]
   });
-
   const isLoading = isLoadingTeams || loadingMembers || isLoadingGroups || isLoadingOrgs;
-
   const contextValue = {
-    contact,
+    contact: userInfo?.team?.notificationAccount,
     myTeams,
     refetchTeams,
     isLoading,
     onSwitchTeam,
     orgs,
     refetchOrgs,
-    currentTeamId, // 导出 currentTeamId
-
-    // create | update team
+    currentTeamId,
     setEditTeamData,
     members,
     refetchMembers,
@@ -154,26 +148,16 @@ export const TeamModalContextProvider = ({ children }: { children: ReactNode }) 
     teamSize: memberTotal,
     MemberScrollData
   };
-
   return (
     <TeamContext.Provider value={contextValue}>
-      {userInfo?.team?.permission && (
-        <>
-          {children}
-          {/* {!!editTeamData && (
-                        <EditInfoModal
-                            defaultData={editTeamData}
-                            onClose={() => setEditTeamData(undefined)}
-                            onSuccess={() => {
-                                refetchTeams();
-                                initUserInfo();
-                            }}
-                        />
-                    )} */}
-        </>
+      {userInfo?.team?.permission ? (
+        <>{children}</>
+      ) : (
+        <Flex justify="center" align="center" h="200px" flexDirection="column">
+          <Box color="gray.500">{'ddf '}</Box>
+        </Flex>
       )}
     </TeamContext.Provider>
   );
 };
-
 export default TeamModalContextProvider;

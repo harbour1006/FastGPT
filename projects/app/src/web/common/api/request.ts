@@ -48,7 +48,8 @@ function checkMaxQuantity({ url, maxQuantity }: { url: string; maxQuantity?: num
   if (item && item.length > 0) {
     if (item.length >= maxQuantity) {
       const firstSign = item.shift();
-      firstSign?.sign.abort();
+      console.log('maxQuantity', maxQuantity, 'item', item, 'firstSign', firstSign);
+      // firstSign?.sign.abort();
     }
     item.push({ id, sign });
   } else {

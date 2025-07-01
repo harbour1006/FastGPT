@@ -113,32 +113,29 @@ const AccountContainer = ({
     //   : []),
     {
       icon: 'common/settingLight',
-      label: t('common:common.Setting'),
+      label: t('common:common.Language Setting'),
       value: TabEnum.setting
-    },
-    {
-      icon: 'support/account/loginoutLight',
-      label: t('account:logout'),
-      value: TabEnum.loginout
     }
+    // {
+    //   icon: 'support/account/loginoutLight',
+    //   label: t('account:logout'),
+    //   value: TabEnum.loginout
+    // }
   ]);
 
-  const { openConfirm, ConfirmModal } = useConfirm({
-    content: t('account:confirm_logout')
-  });
+  // const { openConfirm, ConfirmModal } = useConfirm({
+  //   content: t('account:confirm_logout')
+  // });
 
   const setCurrentTab = useCallback(
     (tab: string) => {
-      if (tab === TabEnum.loginout) {
-        openConfirm(() => {
-          setUserInfo(null);
-          router.replace('/login');
-        })();
-      } else {
-        router.replace('/account/' + tab);
-      }
+      // 这里的 if (tab === TabEnum.loginout) 判断不再需要，因为 loginout 选项已经被移除了
+      // 因此，我们直接执行跳转逻辑
+      router.replace('/account/' + tab);
     },
-    [openConfirm, router, setUserInfo]
+    // 依赖数组中只需要 router，因为 setUserInfo 不再在这个函数中直接使用
+    // openConfirm 也被移除
+    [router]
   );
 
   return (
@@ -188,7 +185,7 @@ const AccountContainer = ({
           {children}
         </Box>
       </Flex>
-      <ConfirmModal />
+      {/* <ConfirmModal /> */}
     </PageContainer>
   );
 };

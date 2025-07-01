@@ -76,6 +76,7 @@ export type TeamMemberItemType = {
   userId: string;
   tmbId: string;
   teamId: string;
+  ownerTeam?: string;
   memberName: string;
   avatar: string;
   role: `${TeamMemberRoleEnum}`;
@@ -118,3 +119,5 @@ export type TeamInvoiceHeaderInfoSchemaType = TeamInvoiceHeaderType & {
   _id: string;
   teamId: string;
 };
+
+export { TeamPermission };

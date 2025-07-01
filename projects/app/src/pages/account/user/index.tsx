@@ -1,3 +1,4 @@
+// C:\FastGPT\gitHubCode2\FastGPT\projects\app\src\pages\account\user\index.tsx
 import { serviceSideProps } from '@fastgpt/web/common/system/nextjs';
 import AccountContainer from '@/pageComponents/account/AccountContainer';
 import { Box, Flex } from '@chakra-ui/react';
@@ -5,7 +6,7 @@ import Icon from '@fastgpt/web/components/common/Icon';
 import { useTranslation } from 'next-i18next';
 import TeamSelector from '@/pageComponents/account/TeamSelector';
 import { useUserStore } from '@/web/support/user/useUserStore';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useContextSelector } from 'use-context-selector';
 import { useRouter } from 'next/router';
 import FillRowTabs from '@fastgpt/web/components/common/Tabs/FillRowTabs';
@@ -13,6 +14,7 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
 import { TeamContext, TeamModalContextProvider } from '@/pageComponents/account/user/UserContext';
 import dynamic from 'next/dynamic';
+import type { EditTeamFormDataType } from '@/pageComponents/account/team/EditInfoModal';
 
 const MemberTable = dynamic(() => import('@/pageComponents/account/user/UserTable'));
 const PermissionManage = dynamic(
@@ -27,18 +29,39 @@ export enum TeamTabEnum {
   group = 'group',
   permission = 'permission'
 }
-
 const Team = () => {
   const router = useRouter();
-  const { teamTab = TeamTabEnum.member } = router.query as { teamTab: `${TeamTabEnum}` };
-
+  const { teamTab = TeamTabEnum.member } = router.query as { teamTab: keyof typeof TeamTabEnum };
   const { t } = useTranslation();
   const { userInfo } = useUserStore();
-
-  const { setEditTeamData, isLoading, teamSize, refetchMembers } = useContextSelector(
+  const { setEditTeamData, isLoading, teamSize, refetchMembers, onSwitchTeam } = useContextSelector(
     TeamContext,
     (v) => v
   );
+  const [viewingTeamId, setViewingTeamId] = useState<string | undefined>(undefined);
+
+  // 使用 TeamContext 的 currentTeamId
+  const currentTeamId = useContextSelector(TeamContext, (v) => v.currentTeamId);
+
+  // 初始化 viewingTeamId
+  useEffect(() => {
+    if (userInfo?.isRoot && !viewingTeamId && userInfo?.team?.teamId) {
+      setViewingTeamId(userInfo.team.teamId);
+      onSwitchTeam(userInfo.team.teamId);
+    } else if (
+      !userInfo?.isRoot &&
+      userInfo?.team?.teamId &&
+      viewingTeamId !== userInfo.team.teamId
+    ) {
+      setViewingTeamId(userInfo.team.teamId);
+      onSwitchTeam(userInfo.team.teamId);
+    }
+    // 强制触发默认团队
+    if (userInfo?.team?.teamId && !currentTeamId) {
+      console.log('Forcing switch to default team:', userInfo.team.teamId);
+      setTimeout(() => onSwitchTeam(userInfo.team.teamId), 100); // 延迟确保 userInfo 更新
+    }
+  }, [userInfo?.isRoot, userInfo?.team?.teamId, viewingTeamId, onSwitchTeam, currentTeamId]);
 
   const Tabs = useMemo(
     () => (
@@ -88,9 +111,17 @@ const Team = () => {
               </Box>
             </Flex>
             <Flex align={'center'} ml={6}>
-              <TeamSelector height={'28px'} onChange={refetchMembers} />
+              <TeamSelector
+                height={'28px'}
+                currentSelectedTeamId={viewingTeamId}
+                onSelectTeamId={(teamId) => {
+                  setViewingTeamId(teamId);
+                  onSwitchTeam(teamId);
+                }}
+                onChange={refetchMembers}
+              />
             </Flex>
-            {userInfo?.team?.role === TeamMemberRoleEnum.owner && (
+            {userInfo?.team?.role === TeamMemberRoleEnum.owner && userInfo?.team && (
               <Flex align={'center'} justify={'center'} ml={2} p={'0.44rem'}>
                 <MyIcon
                   name="edit"
@@ -100,19 +131,18 @@ const Team = () => {
                     color: 'primary.500'
                   }}
                   onClick={() => {
-                    if (!userInfo?.team) return;
+                    if (!userInfo.team) return;
                     setEditTeamData({
                       id: userInfo.team.teamId,
                       name: userInfo.team.teamName,
                       avatar: userInfo.team.avatar,
                       notificationAccount: userInfo.team.notificationAccount
-                    });
+                    } as EditTeamFormDataType);
                   }}
                 />
               </Flex>
             )}
           </Flex>
-
           <Box
             float={'right'}
             color={'myGray.900'}
@@ -146,22 +176,25 @@ const Team = () => {
   );
 };
 
-export async function getServerSideProps(content: any) {
+export async function getServerSideProps(context: any) {
   return {
     props: {
-      ...(await serviceSideProps(content, ['account', 'account_team', 'user']))
+      ...(await serviceSideProps(context, ['account', 'account_team', 'user']))
     }
   };
 }
 
 const Render = () => {
   const { userInfo } = useUserStore();
-
   return !!userInfo?.team ? (
     <TeamModalContextProvider>
       <Team />
     </TeamModalContextProvider>
-  ) : null;
+  ) : (
+    <Flex justify="center" align="center" h="200px" flexDirection="column">
+      <Box color="gray.500">{'ddd'}</Box>
+    </Flex>
+  );
 };
 
 export default React.memo(Render);

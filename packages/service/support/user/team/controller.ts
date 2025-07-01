@@ -19,6 +19,16 @@ import { getAIApi } from '../../../core/ai/config';
 import { createRootOrg } from '../../permission/org/controllers';
 import { refreshSourceAvatar } from '../../../common/file/image/controller';
 
+// ！！！！ 修改这里 ！！！！
+// 导入 Next.js 的 API 路由类型，而不是 Express 的
+import type { NextApiRequest, NextApiResponse } from 'next';
+// ！！！！ 删除这个 ！！！！
+// import { StatusCodes } from 'http-status-codes';
+// ！！！！ 导入 jsonRes ！！！！
+import { jsonRes } from '../../../common/response'; // 确认这个路径是正确的
+// 导入用户模型
+import { MongoUser } from '../schema'; // 确认这个路径是正确的
+
 async function getTeamMember(match: Record<string, any>): Promise<TeamTmbItemType> {
   const tmb = await MongoTeamMember.findOne(match).populate<{ team: TeamSchema }>('team').lean();
   if (!tmb) {
@@ -302,3 +312,99 @@ export async function createTeam({
   }
   return newTeam;
 }
+
+/**
+ * 辅助函数：更新用户的当前活跃团队信息到数据库
+ * 主要更新 MongoUser 文档中的 team.teamId, team.teamName, team.avatar
+ */
+async function updateCurrentUserTeamInDB(userId: string, newTeamId: string) {
+  try {
+    const newTeam = await MongoTeam.findById(newTeamId);
+
+    if (!newTeam) {
+      throw new Error(`Team with ID ${newTeamId} not found.`);
+    }
+
+    await MongoUser.findByIdAndUpdate(
+      userId,
+      {
+        'team.teamId': newTeamId,
+        'team.teamName': newTeam.name,
+        'team.avatar': newTeam.avatar
+      },
+      {
+        new: true
+      }
+    );
+
+    console.log(`User ${userId} successfully updated current active team to ${newTeamId}`);
+  } catch (err) {
+    console.error('Failed to update current user team in DB:', err);
+    throw err;
+  }
+}
+
+/**
+ * API 控制器：切换用户的当前活跃团队
+ * PUT /proApi/support/user/team/switch
+ */
+// ！！！！ 修改函数参数类型 ！！！！
+export const switchUserTeam = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    // req.user 应该由 authUser 中间件提供，如果 authUser 是 Express 风格，
+    // 则 Next.js API 路由需要一个中间件来兼容 req.user。
+    // 或者，您需要确保 authUser 返回的是一个 Next.js 的 request/response 组合。
+    // 假设 req.user 仍然可用
+    const userId = (req as any).user?.userId; // 强制转换为 any 以访问 req.user
+    const currentUserRole = (req as any).user?.role;
+    const currentTeamId = (req as any).user?.team?.teamId;
+
+    const { teamId: newTeamId } = req.body;
+
+    // 1. 基本参数校验
+    if (!userId || !newTeamId) {
+      // ！！！！ 使用 jsonRes ！！！！
+      return jsonRes(res, {
+        code: 400, // Bad Request
+        message: 'Invalid user ID or new team ID.'
+      });
+    }
+
+    // 2. 如果当前团队和目标团队相同，无需操作
+    if (currentTeamId === newTeamId) {
+      // ！！！！ 使用 jsonRes ！！！！
+      return jsonRes(res, {
+        code: 200, // OK
+        message: 'Already in this team.'
+      });
+    }
+
+    // 3. 权限验证：只有 Root 用户才能通过此 API 切换团队
+    // 根据您的确认：Root 用户角色是 TeamMemberRoleEnum.owner
+    if (currentUserRole !== TeamMemberRoleEnum.owner) {
+      // ！！！！ 使用 jsonRes ！！！！
+      return jsonRes(res, {
+        code: 403, // Forbidden
+        message: 'Permission denied: Only root users can switch teams.'
+      });
+    }
+
+    // 4. Root 用户逻辑：切换团队仅为“视角切换”，无需验证成员身份
+    await updateCurrentUserTeamInDB(userId, newTeamId);
+
+    // 5. 返回成功响应
+    // ！！！！ 使用 jsonRes ！！！！
+    jsonRes(res, {
+      code: 200, // OK
+      message: 'Team switched successfully.'
+    });
+  } catch (err) {
+    console.error('Error in switchUserTeam API:', err);
+    // 统一的错误响应处理，可以利用 jsonRes 的 error 参数
+    jsonRes(res, {
+      code: 500, // Internal Server Error
+      message: 'Server error during team switch.',
+      error: err // 将原始错误传递给 jsonRes 进行处理
+    });
+  }
+};

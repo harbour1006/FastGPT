@@ -180,22 +180,32 @@ const MyInfo = ({ onOpenContact }: { onOpenContact: () => void }) => {
       )}
       <Box mt={[0, 6]} fontSize={'sm'}>
         {isPc ? (
+          // 找到你代码中这一段：
           <Flex alignItems={'center'} cursor={'pointer'}>
             <Box {...labelStyles}>{t('account_info:avatar')}:&nbsp;</Box>
 
             <MyTooltip label={t('account_info:select_avatar')}>
+              {/* 修改这个 Box，它将只作为一个简单的点击容器，不负责主要样式 */}
               <Box
-                w={['44px', '56px']}
-                h={['44px', '56px']}
-                borderRadius={'50%'}
-                border={theme.borders.base}
-                overflow={'hidden'}
-                p={'2px'}
-                boxShadow={'0 0 5px rgba(0,0,0,0.1)'}
+                overflow={'hidden'} // 保持 overflow hidden，虽然 Avatar 应该会处理
                 mb={2}
                 onClick={onOpenSelectFile}
+                display="flex" // 确保它是一个 Flex 容器，方便内部 Avatar 居中
+                justifyContent="center"
+                alignItems="center"
               >
-                <Avatar src={userInfo?.avatar} borderRadius={'50%'} w={'100%'} h={'100%'} />
+                {/* 核心修改：在 Avatar 组件上直接设置所有外观样式 */}
+                <Avatar
+                  src={userInfo?.avatar}
+                  borderRadius={'50%'} // 确保 Avatar 自身是圆形
+                  // 设置 Avatar 的固定尺寸
+                  w={['44px', '56px']} // 从父 Box 移过来
+                  h={['44px', '56px']} // 从父 Box 移过来
+                  // 明确设置 objectFit 为 "cover"
+                  objectFit="cover" // <<< 明确设置！确保图片填充并裁剪
+                  border={theme.borders.base} // 将边框移到 Avatar 自身
+                  boxShadow={'0 0 5px rgba(0,0,0,0.1)'} // 将阴影移到 Avatar 自身
+                />
               </Box>
             </MyTooltip>
           </Flex>

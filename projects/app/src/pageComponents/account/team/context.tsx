@@ -3,7 +3,10 @@ import { createContext } from 'use-context-selector';
 import type { EditTeamFormDataType } from './EditInfoModal';
 import dynamic from 'next/dynamic';
 import { getTeamList, getTeamMembers, putSwitchTeam } from '@/web/support/user/team/api';
-import { TeamMemberStatusEnum } from '@fastgpt/global/support/user/team/constant';
+import {
+  TeamMemberStatusEnum,
+  TeamMemberRoleEnum
+} from '@fastgpt/global/support/user/team/constant';
 import { useUserStore } from '@/web/support/user/useUserStore';
 import type { TeamTmbItemType, TeamMemberItemType } from '@fastgpt/global/support/user/team/type';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
@@ -24,7 +27,6 @@ type TeamModalContextType = {
   isLoading: boolean;
   onSwitchTeam: (teamId: string) => void;
   setEditTeamData: React.Dispatch<React.SetStateAction<EditTeamFormDataType | undefined>>;
-
   refetchMembers: () => void;
   refetchTeams: () => void;
   refetchGroups: () => void;
@@ -70,7 +72,8 @@ export const TeamModalContextProvider = ({ children }: { children: ReactNode }) 
     data: myTeams = [],
     loading: isLoadingTeams,
     refresh: refetchTeams
-  } = useRequest2(() => getTeamList(TeamMemberStatusEnum.active), {
+  } = useRequest2(() => getTeamList(TeamMemberStatusEnum.active, TeamMemberRoleEnum.owner), {
+    // <-- 关键修改在这里，传入 role 参数
     manual: false,
     refreshDeps: [userInfo?._id]
   });

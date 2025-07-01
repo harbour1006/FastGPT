@@ -169,7 +169,7 @@ const Chat = ({ myApps }: { myApps: AppListItemType[] }) => {
         </Box>
       )}
 
-      <PageContainer isLoading={loading} flex={'1 0 0'} w={0} p={[0, '16px']} position={'relative'}>
+      <PageContainer isLoading={loading} flex={'1 0 0'} w={0} p={[0, '0px']} position={'relative'}>
         <Flex h={'100%'} flexDirection={['column', 'row']}>
           {/* pc always show history. */}
           {RenderHistorySlider}

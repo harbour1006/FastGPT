@@ -1,3 +1,4 @@
+// C:\FastGPT\gitHubCode2\FastGPT\projects\app\src\web\support\user\useUserStore.ts
 import type { UserUpdateParams } from '@/types/user';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { getTokenLogin, putUserInfo } from '@/web/support/user/api';
@@ -59,15 +60,17 @@ export const useUserStore = create<State>()(
         isTeamAdmin: false,
         async initUserInfo() {
           get().initTeamPlanStatus();
-
-          const res = await getTokenLogin();
-          console.log('User Info from API:', res); // 添加这行
+          const res = await getTokenLogin({ forceRefresh: true }); // 使用更新后的签名
           get().setUserInfo(res);
 
-          //设置html的fontsize
+          // 设置 html 的 fontsize
           const html = document?.querySelector('html');
           if (html) {
             // html.style.fontSize = '16px';
+          }
+
+          if (!res.team?.teamId) {
+            console.warn('No teamId found in userInfo:', res);
           }
 
           return res;
