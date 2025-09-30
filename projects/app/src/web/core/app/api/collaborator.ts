@@ -9,7 +9,10 @@ export const getCollaboratorList = (appId: string) =>
   GET<CollaboratorItemType[]>('/proApi/core/app/collaborator/list', { appId });
 
 export const postUpdateAppCollaborators = (body: UpdateAppCollaboratorBody) =>
-  POST('/proApi/core/app/collaborator/update', body);
+  POST('/core/app/collaborator/update', body);
 
 export const deleteAppCollaborators = (params: AppCollaboratorDeleteParams) =>
-  DELETE('/proApi/core/app/collaborator/delete', params);
+  DELETE('/core/app/collaborator/delete', params);
+//此为新增
+export const checkAppGroupReadPermission = (params: AppCollaboratorDeleteParams) =>
+  GET<boolean>('/core/app/collaborator/checkPermission', params);

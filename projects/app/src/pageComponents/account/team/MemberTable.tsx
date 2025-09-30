@@ -296,13 +296,13 @@ function MemberTable({ Tabs }: { Tabs: React.ReactNode }) {
                       <Td maxW={'300px'}>{team.memberName || '-'}</Td>
                       <Td maxW={'300px'}>{team.contact || '-'}</Td>
                       <Td maxW={'300px'}>
-                        <VStack gap={0}>
-                          <Box>
-                            {team.createTime
-                              ? format(new Date(team.createTime), 'yyyy-MM-dd HH:mm:ss')
-                              : '-'}
-                          </Box>
-                        </VStack>
+                        {/* <VStack gap={0}>
+                          <Box> */}
+                        {team.createTime
+                          ? format(new Date(team.createTime), 'yyyy-MM-dd HH:mm:ss')
+                          : '-'}
+                        {/* </Box>
+                        </VStack> */}
                       </Td>
                       <Td>
                         <Flex align="center" gap={2}>

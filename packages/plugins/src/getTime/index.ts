@@ -1,6 +1,7 @@
 type Props = {
   time: string;
 };
+
 type Response = Promise<{
   time: string;
 }>;

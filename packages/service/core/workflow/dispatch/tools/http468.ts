@@ -402,7 +402,7 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
   try {
     const { formatResponse, rawResponse } = await (async () => {
       const systemPluginCb = global.systemPluginCb;
-      if (systemPluginCb[httpReqUrl]) {
+      if (systemPluginCb && !!systemPluginCb[httpReqUrl]) {
         const pluginResult = await replaceSystemPluginResponse({
           response: await systemPluginCb[httpReqUrl](requestBody),
           teamId,
@@ -478,7 +478,7 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
       [NodeOutputKeyEnum.httpRawResponse]: rawResponse
     };
   } catch (error) {
-    addLog.error('Http request error', error);
+    addLog.error('Http request error harbour', error);
 
     return {
       [NodeOutputKeyEnum.error]: formatHttpError(error),

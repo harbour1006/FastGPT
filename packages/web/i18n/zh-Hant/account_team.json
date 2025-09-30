@@ -25,6 +25,7 @@
   "org_name": "部門名稱",
   "owner": "擁有者",
   "permission": "權限",
+  "permission_appCreate": "",
   "remark": "備註",
   "remove_tip": "確認將 {{username}} 移出團隊？",
   "retain_admin_permissions": "保留管理員權限",

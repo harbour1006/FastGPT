@@ -1,4 +1,3 @@
-// C:\FastGPT\gitHubCode2\FastGPT\projects\app\src\pages\api\support\user\account\tokenLogin.ts
 import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { getUserDetail } from '@fastgpt/service/support/user/controller';
 import type { ApiRequestProps, ApiResponseType } from '@fastgpt/service/type/next';
@@ -19,7 +18,6 @@ async function handler(
   // 强制刷新时重新查询数据库
   // 临时绕过类型检查
   const user = await (getUserDetail as any)({ tmbId, forceRefresh });
-
   // Remove sensitive information
   if (user.team.openaiAccount) {
     user.team.openaiAccount = {

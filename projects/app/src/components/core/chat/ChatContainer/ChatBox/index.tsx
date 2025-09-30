@@ -925,7 +925,7 @@ const ChatBox = ({
         pb={3}
       >
         <Box id="chat-container" maxW={['100%', '92%']} h={'100%'} mx={'auto'}>
-          {showEmpty && <Empty renderChatInputArea={renderChatInputComponent} />}
+          {showEmpty && <Empty />}
           {!!welcomeText && <WelcomeBox welcomeText={welcomeText} />}
           {/* variable input */}
           {!!variableList?.length && (
@@ -1060,14 +1060,22 @@ const ChatBox = ({
       {/* chat box container */}
       {RenderRecords}
       {/* message input */}
-      {onStartChat && chatStarted && active && !isInteractive && !showEmpty && (
-        <ChatInput
-          onSendMessage={sendPrompt}
-          onStop={() => chatController.current?.abort('stop')}
-          TextareaDom={TextareaDom}
-          resetInputVal={resetInputVal}
-          chatForm={chatForm}
-        />
+      {onStartChat && active && !isInteractive && (
+        <Box
+          mt={showEmpty ? 'atuo' : 0} // 在新建聊天时自动居中，现有聊天时贴
+          mb={showEmpty ? 400 : 4} // 控制底部间距
+          display="flex"
+          justifyContent="center" // 新建聊天时居中
+          position={showEmpty ? 'static' : 'static'}
+        >
+          <ChatInput
+            onSendMessage={sendPrompt}
+            onStop={() => chatController.current?.abort('stop')}
+            TextareaDom={TextareaDom}
+            resetInputVal={resetInputVal}
+            chatForm={chatForm}
+          />
+        </Box>
       )}
       {/* user feedback modal */}
       {!!feedbackId && chatId && (

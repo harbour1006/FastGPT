@@ -115,7 +115,6 @@ const MyApps = () => {
     ),
     [searchKey, setSearchKey, t]
   );
-
   return (
     <Flex flexDirection={'column'} h={'100%'}>
       {paths.length > 0 && (
@@ -318,7 +317,7 @@ const MyApps = () => {
               onDelete={() => onDeleFolder(folderDetail._id)}
               managePer={{
                 permission: folderDetail.permission,
-                onGetCollaboratorList: () => getCollaboratorList(folderDetail._id),
+                // onGetCollaboratorList: () => getCollaboratorList(folderDetail._id),
                 permissionList: AppPermissionList,
                 onUpdateCollaborators: ({
                   members,

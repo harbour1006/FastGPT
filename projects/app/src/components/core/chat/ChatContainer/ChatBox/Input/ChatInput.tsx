@@ -237,7 +237,7 @@ const ChatInput = ({
           wordBreak={'break-all'}
           boxShadow={'none !important'}
           color={'myGray.900'}
-          isDisabled={isSpeaking}
+          isDisabled={false}
           value={inputValue}
           fontSize={['md', 'sm']}
           onChange={(e) => {

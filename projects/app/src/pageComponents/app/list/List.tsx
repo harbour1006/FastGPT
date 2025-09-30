@@ -11,6 +11,7 @@ import { useTranslation } from 'next-i18next';
 import MyBox from '@fastgpt/web/components/common/MyBox';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 import { useContextSelector } from 'use-context-selector';
+import { TeamContext } from '@/pageComponents/account/team/context';
 import { AppListContext } from './context';
 import { AppFolderTypeList, AppTypeEnum } from '@fastgpt/global/core/app/constants';
 import { useFolderDrag } from '@/components/common/folder/useFolderDrag';
@@ -55,6 +56,7 @@ const ListItem = () => {
     (v) => v
   );
 
+  // const groups = useContextSelector(TeamContext, (context) => context.groups);
   const [editedApp, setEditedApp] = useState<EditResourceInfoFormType>();
   const [editHttpPlugin, setEditHttpPlugin] = useState<EditHttpPluginProps>();
   const [editPerAppIndex, setEditPerAppIndex] = useState<number>();
@@ -420,9 +422,11 @@ const ListItem = () => {
           isInheritPermission={editPerApp.inheritPermission}
           avatar={editPerApp.avatar}
           name={editPerApp.name}
+          groupId={editPerApp.teamGroups}
           managePer={{
+            appId: editPerApp._id,
             permission: editPerApp.permission,
-            onGetCollaboratorList: () => getCollaboratorList(editPerApp._id),
+            // onGetCollaboratorList: () => getCollaboratorList(editPerApp._id),
             permissionList: AppPermissionList,
             onUpdateCollaborators: (props: {
               members?: string[];

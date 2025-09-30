@@ -25,7 +25,7 @@ const ManageModal = dynamic(() => import('./ManageModal'));
 
 export type MemberManagerInputPropsType = {
   permission: Permission;
-  onGetCollaboratorList: () => Promise<CollaboratorItemType[]>;
+  // onGetCollaboratorList: () => Promise<CollaboratorItemType[]>;
   permissionList?: PermissionListType;
   onUpdateCollaborators: (props: UpdateClbPermissionProps) => Promise<any>;
   onDelOneCollaborator: (
@@ -63,16 +63,16 @@ export const CollaboratorContext = createContext<CollaboratorContextType>({
   refetchCollaboratorList: (): void => {
     throw new Error('Function not implemented.');
   },
-  onGetCollaboratorList: (): Promise<CollaboratorItemType[]> => {
-    throw new Error('Function not implemented.');
-  },
+  // onGetCollaboratorList: (): Promise<CollaboratorItemType[]> => {
+  //   throw new Error('Function not implemented.');
+  // },
   isFetchingCollaborator: false,
   permission: new Permission()
 });
 
 const CollaboratorContextProvider = ({
   permission,
-  onGetCollaboratorList,
+  // onGetCollaboratorList,
   permissionList,
   onUpdateCollaborators,
   onDelOneCollaborator,
@@ -110,7 +110,7 @@ const CollaboratorContextProvider = ({
   } = useRequest2(
     async () => {
       if (feConfigs.isPlus) {
-        return onGetCollaboratorList();
+        // return onGetCollaboratorList();
       }
       return [];
     },
@@ -162,7 +162,7 @@ const CollaboratorContextProvider = ({
 
   const contextValue = {
     permission,
-    onGetCollaboratorList,
+    // onGetCollaboratorList,
     collaboratorList,
     refetchCollaboratorList,
     isFetchingCollaborator,

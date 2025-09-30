@@ -61,21 +61,42 @@ const getCommercialCb = async () => {
   );
 };
 
+// 在 src/service/core/app/plugin.ts 中添加调试信息
+
 export const getSystemPluginCb = async (refresh = false) => {
+  console.log('getSystemPluginCb called, FastGPTProUrl:', FastGPTProUrl);
+  console.log('isProduction:', isProduction);
+
   if (
     isProduction &&
     global.systemPluginCb &&
     Object.keys(global.systemPluginCb).length > 0 &&
     !refresh
-  )
+  ) {
+    console.log('Using cached plugin callbacks');
     return global.systemPluginCb;
+  }
 
   try {
     global.systemPluginCb = {};
     await getSystemPlugins(refresh);
-    global.systemPluginCb = FastGPTProUrl ? await getCommercialCb() : await getCommunityCb();
+
+    console.log('Loaded system plugins:', global.systemPlugins?.length);
+
+    // 强制使用社区版插件模式，注释掉商业版逻辑
+    // if (FastGPTProUrl) {
+    //   console.log('Using commercial plugin callbacks');
+    //   global.systemPluginCb = await getCommercialCb();
+    // } else {
+    console.log('Using community plugin callbacks (forced)');
+    global.systemPluginCb = await getCommunityCb();
+    // }
+
+    console.log('Available plugin callbacks:', Object.keys(global.systemPluginCb));
+
     return global.systemPluginCb;
   } catch (error) {
+    console.error('Error loading plugin callbacks:', error);
     return Promise.reject(error);
   }
 };

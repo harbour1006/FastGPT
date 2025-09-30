@@ -18,16 +18,10 @@ import { DefaultGroupName } from '@fastgpt/global/support/user/team/group/consta
 import { getAIApi } from '../../../core/ai/config';
 import { createRootOrg } from '../../permission/org/controllers';
 import { refreshSourceAvatar } from '../../../common/file/image/controller';
-
-// ！！！！ 修改这里 ！！！！
-// 导入 Next.js 的 API 路由类型，而不是 Express 的
+import { MongoResourcePermission } from '../../permission/schema'; // <-- **添加这一行**
 import type { NextApiRequest, NextApiResponse } from 'next';
-// ！！！！ 删除这个 ！！！！
-// import { StatusCodes } from 'http-status-codes';
-// ！！！！ 导入 jsonRes ！！！！
-import { jsonRes } from '../../../common/response'; // 确认这个路径是正确的
-// 导入用户模型
-import { MongoUser } from '../schema'; // 确认这个路径是正确的
+import { jsonRes } from '../../../common/response';
+import { MongoUser } from '../schema';
 
 async function getTeamMember(match: Record<string, any>): Promise<TeamTmbItemType> {
   const tmb = await MongoTeamMember.findOne(match).populate<{ team: TeamSchema }>('team').lean();
@@ -130,7 +124,8 @@ export async function createDefaultTeam({
       { session }
     );
     // create default group
-    await MongoMemberGroupModel.create(
+    const [defaultGroup] = await MongoMemberGroupModel.create(
+      // <-- **修改这里，获取 defaultGroup 实例**
       [
         {
           teamId: tmb.teamId,
@@ -140,6 +135,21 @@ export async function createDefaultTeam({
       ],
       { session }
     );
+
+    // ！！！！ 添加：为默认群组创建 resource_permissions 记录 ！！！！
+    await MongoResourcePermission.create(
+      [
+        {
+          teamId: tmb.teamId,
+          groupId: defaultGroup._id, // 使用默认群组的 ID
+          resourceType: PerResourceTypeEnum.team, // 权限是针对团队层面的
+          permission: 60, // 您的目标权限值：read(4) + appCreate(8) + datasetCreate(16) + apikeyCreate(32) = 60
+          resourceId: null // 团队层面的权限，resourceId 为 null
+        }
+      ],
+      { session }
+    );
+
     await createRootOrg({ teamId: tmb.teamId, session });
     console.log('create default team, group and root org', userId);
     return tmb;
@@ -291,12 +301,27 @@ export async function createTeam({
   );
 
   // 3. 创建默认群组
-  await MongoMemberGroupModel.create(
+  const [defaultGroup] = await MongoMemberGroupModel.create(
+    // <-- **修改这里：获取 defaultGroup 实例**
     [
       {
         teamId: teamId,
         name: DefaultGroupName
         // 可以设置默认的群组头像，或者留空
+      }
+    ],
+    { session }
+  );
+
+  // ！！！！ 添加：为默认群组创建 resource_permissions 记录 ！！！！
+  await MongoResourcePermission.create(
+    [
+      {
+        teamId: teamId,
+        groupId: defaultGroup._id, // 使用默认群组的 ID
+        resourceType: PerResourceTypeEnum.team, // 权限是针对团队层面的
+        permission: 63,
+        resourceId: null // 团队层面的权限，resourceId 为 null
       }
     ],
     { session }
@@ -348,7 +373,6 @@ async function updateCurrentUserTeamInDB(userId: string, newTeamId: string) {
  * API 控制器：切换用户的当前活跃团队
  * PUT /proApi/support/user/team/switch
  */
-// ！！！！ 修改函数参数类型 ！！！！
 export const switchUserTeam = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // req.user 应该由 authUser 中间件提供，如果 authUser 是 Express 风格，

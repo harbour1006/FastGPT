@@ -1,6 +1,7 @@
 import { MongoApp } from '@fastgpt/service/core/app/schema';
 import { AppListItemType } from '@fastgpt/global/core/app/type';
 import { NextAPI } from '@/service/middleware/entry';
+import mongoose from 'mongoose';
 import { MongoResourcePermission } from '@fastgpt/service/support/permission/schema';
 import {
   PerResourceTypeEnum,
@@ -60,7 +61,6 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
         ]
       : [])
   ]);
-
   // Get team all app permissions
   const [perList, myGroupMap, myOrgSet] = await Promise.all([
     MongoResourcePermission.find({
@@ -94,11 +94,12 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
   );
 
   const findAppsQuery = (() => {
+    const teamObjectId = new mongoose.Types.ObjectId(teamId);
     if (getRecentlyChat) {
       return {
         // get all chat app
-        teamId,
-        type: { $in: [AppTypeEnum.workflow, AppTypeEnum.simple, AppTypeEnum.plugin] }
+        teamId: teamObjectId
+        // type: { $in: [AppTypeEnum.workflow, AppTypeEnum.simple, AppTypeEnum.plugin] }
       };
     }
 
@@ -124,15 +125,15 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
     if (searchKey) {
       return {
         ...appPerQuery,
-        teamId,
+        teamId: teamObjectId,
         ...searchMatch
       };
     }
 
     return {
       ...appPerQuery,
-      teamId,
-      ...(type && (Array.isArray(type) ? { type: { $in: type } } : { type })),
+      teamId: teamObjectId,
+      // ...(type && (Array.isArray(type) ? { type: { $in: type } } : { type })),
       ...parseParentIdInMongo(parentId)
     };
   })();
@@ -142,15 +143,51 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
     return 1000;
   })();
 
-  const myApps = await MongoApp.find(
-    findAppsQuery,
-    '_id parentId avatar type name intro tmbId updateTime pluginData inheritPermission'
-  )
-    .sort({
-      updateTime: -1
-    })
-    .limit(limit)
-    .lean();
+  const myApps = await MongoApp.aggregate([
+    {
+      $match: findAppsQuery
+    },
+
+    {
+      $lookup: {
+        from: 'team_member_groups',
+        localField: 'teamId',
+        foreignField: 'teamId',
+        as: 'teamGroups'
+      }
+    },
+
+    {
+      $project: {
+        _id: 1,
+        parentId: 1,
+        avatar: 1,
+        type: 1,
+        name: 1,
+        intro: 1,
+        tmbId: 1,
+        updateTime: 1,
+        pluginData: 1,
+        inheritPermission: 1,
+        teamGroups: {
+          $cond: {
+            // 使用 $cond (if-then-else) 来检查数组是否为空
+            if: { $gt: [{ $size: '$teamGroups' }, 0] }, // 如果 teamGroups 数组大小大于 0
+            then: { $toString: { $arrayElemAt: ['$teamGroups._id', 0] } }, // 则取第一个元素的 _id 并转字符串
+            else: null // 否则为 null (或者可以设置为 ""、[] 等)
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        updateTime: -1
+      }
+    },
+    {
+      $limit: limit
+    }
+  ]);
 
   // Add app permission and filter apps by read permission
   const formatApps = myApps

@@ -60,7 +60,7 @@ export const useUserStore = create<State>()(
         isTeamAdmin: false,
         async initUserInfo() {
           get().initTeamPlanStatus();
-          const res = await getTokenLogin({ forceRefresh: true }); // 使用更新后的签名
+          const res = await getTokenLogin({ forceRefresh: true }); // 使用更新后的签
           get().setUserInfo(res);
 
           // 设置 html 的 fontsize
