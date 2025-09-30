@@ -252,7 +252,7 @@ function PermissionManage({
                         </Box>
                       </Td>
                       <Td>
-                        {hasDeletePer(new TeamPermission({ per: member.permission.value })) &&
+                        {hasDeletePer(new TeamPermission({ per: member.permission.value })) &&harbour
                           userInfo?.team.tmbId !== member.tmbId && (
                             <Box mx="auto" w="fit-content">
                               <MyIconButton
