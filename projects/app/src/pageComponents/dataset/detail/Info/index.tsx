@@ -385,7 +385,6 @@ const Info = ({ datasetId }: { datasetId: string }) => {
             <MemberManager
               managePer={{
                 permission: datasetDetail.permission,
-                onGetCollaboratorList: () => getCollaboratorList(datasetId),
                 permissionList: DatasetPermissionList,
                 onUpdateCollaborators: (body) =>
                   postUpdateDatasetCollaborators({
