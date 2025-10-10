@@ -251,7 +251,7 @@ function PermissionManage({
                           />
                         </Box>
                       </Td>
-                      <Td>
+                      {/* <Td>
                         {hasDeletePer(member.permission) &&
                           userInfo?.team.tmbId !== member.tmbId && (
                             <Box mx="auto" w="fit-content">
@@ -263,7 +263,7 @@ function PermissionManage({
                               />
                             </Box>
                           )}
-                      </Td>
+                      </Td> */}
                     </Tr>
                   ))}
               </>
@@ -320,7 +320,7 @@ function PermissionManage({
                         </Box>
                       </Td>
                       <Td>
-                        {hasDeletePer(org.permission) && (
+                        {hasDeletePer(new TeamPermission({ per: org.permission.value })) && (
                           <Box mx="auto" w="fit-content">
                             <MyIconButton
                               icon="common/trash"
@@ -400,7 +400,7 @@ function PermissionManage({
                         </Box>
                       </Td>
                       <Td>
-                        {hasDeletePer(group.permission) && (
+                        {hasDeletePer(new TeamPermission({ per: group.permission.value })) && (
                           <Box mx="auto" w="fit-content">
                             <MyIconButton
                               icon="common/trash"
@@ -427,7 +427,6 @@ export const Render = ({ Tabs }: { Tabs: React.ReactNode }) => {
     <CollaboratorContextProvider
       permission={userInfo?.team.permission}
       permissionList={TeamPermissionList}
-      onGetCollaboratorList={getTeamClbs}
       onUpdateCollaborators={updateMemberPermission}
       onDelOneCollaborator={deleteMemberPermission}
       refreshDeps={[userInfo?.team.teamId]}
