@@ -251,7 +251,7 @@ function PermissionManage({
                           />
                         </Box>
                       </Td>
-                      <Td>
+                      {/* <Td>
                         {hasDeletePer(new TeamPermission({ per: member.permission.value })) &&
                           userInfo?.team.tmbId !== member.tmbId && (
                             <Box mx="auto" w="fit-content">
@@ -263,7 +263,7 @@ function PermissionManage({
                               />
                             </Box>
                           )}
-                      </Td>
+                      </Td> */}
                     </Tr>
                   ))}
               </>
