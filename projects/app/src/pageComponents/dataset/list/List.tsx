@@ -432,8 +432,8 @@ function List() {
           avatar={editPerDataset.avatar}
           name={editPerDataset.name}
           managePer={{
+            appId: editPerDataset._id,
             permission: editPerDataset.permission,
-            onGetCollaboratorList: () => getCollaboratorList(editPerDataset._id),
             permissionList: DatasetPermissionList,
             onUpdateCollaborators: (props) =>
               postUpdateDatasetCollaborators({
@@ -448,6 +448,7 @@ function List() {
             refreshDeps: [editPerDataset._id, editPerDataset.inheritPermission]
           }}
           onClose={() => setEditPerDatasetIndex(undefined)}
+          groupId={''}
         />
       )}
       <ConfirmModal />

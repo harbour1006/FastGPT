@@ -239,7 +239,6 @@ const Dataset = () => {
               }
               managePer={{
                 permission: folderDetail.permission,
-                onGetCollaboratorList: () => getCollaboratorList(folderDetail._id),
                 permissionList: DatasetPermissionList,
                 onUpdateCollaborators: ({
                   members,
