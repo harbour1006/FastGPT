@@ -89,7 +89,13 @@ const nextConfig = {
       '@zilliz/milvus2-sdk-node'
     ],
     outputFileTracingRoot: path.join(__dirname, '../../'),
-    instrumentationHook: true
+    instrumentationHook: true,
+    outputFileTracingIncludes: {
+      './**/*': [
+        './data/**/*', // 包含 data/config.json
+        '../../packages/service/core/ai/config/provider/**/*' // 包含 provider 目录
+      ],
+    }
   }
 };
 
