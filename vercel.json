@@ -1,16 +1,6 @@
 {
-  "build": {
-    "includeFiles": [
-
-      "package.json", 
-
-      "packages/service/core/ai/config/provider/**/*",
-
-      "projects/app/data/**/*" 
-    ]
-  },
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-
     "projects/app/pages/api/**": {
       "memory": 2048, 
       "maxDuration": 60 

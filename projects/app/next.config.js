@@ -82,6 +82,8 @@ const nextConfig = {
   transpilePackages: ['@fastgpt/*', 'ahooks'],
   experimental: {
     // 优化 Server Components 的构建和运行，避免不必要的客户端打包。
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+    instrumentationHook: true,
     serverComponentsExternalPackages: [
       'mongoose',
       'pg',
@@ -91,15 +93,15 @@ const nextConfig = {
     outputFileTracingRoot: path.join(__dirname, '../../'),
     instrumentationHook: true,
     outputFileTracingIncludes: {
-      // '**/*' 匹配所有构建输出文件
+      // 匹配所有构建输出
       './**/*': [
-        // 1. 强制包含所有 packages/service 里的文件，以防漏掉
-        '../../packages/service/**/*',
+        // 1. 解决 /app/package.json 缺失问题：将根目录的 package.json 包含
+        '../../package.json',
 
-        // 2. 明确包含出错的目录
+        // 2. 解决 /packages/service/core/ai/config/provider 目录缺失问题
         '../../packages/service/core/ai/config/provider/**/*',
 
-        // 3. 包含 data 目录下的所有文件 (你已经解决了 config.json，但最好包含所有 data)
+        // 3. 包含 data 目录
         './data/**/*'
       ],
     },
