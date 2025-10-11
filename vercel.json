@@ -1,0 +1,19 @@
+{
+  "build": {
+    "includeFiles": [
+
+      "package.json", 
+
+      "packages/service/core/ai/config/provider/**/*",
+
+      "projects/app/data/**/*" 
+    ]
+  },
+  "functions": {
+
+    "projects/app/pages/api/**": {
+      "memory": 2048, 
+      "maxDuration": 60 
+    }
+  }
+}

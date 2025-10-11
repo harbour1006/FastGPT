@@ -91,11 +91,18 @@ const nextConfig = {
     outputFileTracingRoot: path.join(__dirname, '../../'),
     instrumentationHook: true,
     outputFileTracingIncludes: {
+      // '**/*' 匹配所有构建输出文件
       './**/*': [
-        './data/**/*', // 包含 data/config.json
-        '../../packages/service/core/ai/config/provider/**/*' // 包含 provider 目录
+        // 1. 强制包含所有 packages/service 里的文件，以防漏掉
+        '../../packages/service/**/*',
+
+        // 2. 明确包含出错的目录
+        '../../packages/service/core/ai/config/provider/**/*',
+
+        // 3. 包含 data 目录下的所有文件 (你已经解决了 config.json，但最好包含所有 data)
+        './data/**/*'
       ],
-    }
+    },
   }
 };
 
