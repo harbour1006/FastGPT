@@ -1,5 +1,6 @@
 import { initHttpAgent } from '@fastgpt/service/common/middle/httpAgent';
 import fs, { existsSync } from 'fs';
+import path from 'path'; // 添加 path 导入
 import type { FastGPTFeConfigsType } from '@fastgpt/global/common/system/types/index.d';
 import type { FastGPTConfigFileType } from '@fastgpt/global/common/system/types/index.d';
 import { getFastGPTConfigFromDB } from '@fastgpt/service/common/system/config/controller';
@@ -18,21 +19,41 @@ export const readConfigData = async (name: string) => {
 
   const filename = (() => {
     if (!isProduction) {
-      // check local file exists
       const hasLocalFile = existsSync(`data/${devName}`);
       if (hasLocalFile) {
         return `data/${devName}`;
       }
       return `data/${name}`;
     }
-    // production path
-    return `/app/data/${name}`;
+    // 修复：使用 process.cwd() 而不是硬编码 /app
+    return path.join(process.cwd(), 'data', name);
   })();
 
-  const content = await fs.promises.readFile(filename, 'utf-8');
-
-  return content;
+  try {
+    const content = await fs.promises.readFile(filename, 'utf-8');
+    console.log(`✅ Config loaded from: ${filename}`);
+    return content;
+  } catch (error: any) {
+    console.error(`❌ Failed to read config from: ${filename}`, error.message);
+    if (isProduction && error.code === 'ENOENT') {
+      console.warn('⚠️  Using default config');
+      return JSON.stringify({
+        feConfigs: { lafEnv: 'https://laf.dev' },
+        systemEnv: {
+          vectorMaxProcess: 10,
+          qaMaxProcess: 10,
+          vlmMaxProcess: 10,
+          tokenWorkers: 30,
+          pgHNSWEfSearch: 100,
+          customPdfParse: { url: '', key: '', doc2xKey: '', price: 0 }
+        }
+      });
+    }
+    throw error;
+  }
 };
+
+// ... 其余代码保持不变
 
 /* Init global variables */
 export function initGlobalVariables() {
